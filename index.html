@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBPay API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060A10;--bg2:#0C1220;--bg3:#111827;--bg4:#1a2236;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --blue:#3B82F6;--blue-s:rgba(59,130,246,.1);--blue-g:rgba(59,130,246,.2);
+  --green:#10B981;--green-s:rgba(16,185,129,.1);
+  --amber:#F59E0B;--amber-s:rgba(245,158,11,.1);
+  --red:#EF4444;--red-s:rgba(239,68,68,.1);
+  --violet:#8B5CF6;--violet-s:rgba(139,92,246,.1);
+  --slate:#64748B;
+  --text:#F1F5F9;--text2:#CBD5E1;--text3:#64748B;--text4:#94A3B8;
+  --ff:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;--fd:'Syne',sans-serif;
+  --sidebar:268px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--ff);display:flex;min-height:100vh;font-size:14px}
+/* ─── SIDEBAR ───────────────────────────────────────────── */
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:10}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.sb-top{padding:22px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sb-mark{width:34px;height:34px;background:linear-gradient(135deg,#3B82F6,#60A5FA);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:800;font-size:13px;color:#fff}
+.sb-brand{font-family:var(--fd);font-weight:800;font-size:17px}
+.sb-ver{font-size:10px;font-family:var(--fm);padding:2px 8px;border-radius:4px;
+  background:var(--blue-s);color:var(--blue);border:1px solid rgba(59,130,246,.22);display:inline-block}
+.sb-nav{padding:10px 0;flex:1}
+.sb-sect{padding:10px 18px 4px;font-size:9px;font-family:var(--fm);font-weight:600;
+  letter-spacing:1.8px;text-transform:uppercase;color:var(--text3)}
+.sb-link{display:flex;align-items:center;gap:7px;padding:6px 18px;font-size:12.5px;color:var(--text4);
+  text-decoration:none;border-left:2px solid transparent;cursor:pointer;transition:all .12s}
+.sb-link:hover{color:var(--text2);background:rgba(255,255,255,.025)}
+.sb-link.on{color:var(--blue);background:var(--blue-s);border-left-color:var(--blue)}
+.sb-method{font-size:9px;font-family:var(--fm);font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0}
+.sm-post{background:rgba(16,185,129,.15);color:#6EE7B7}
+.sm-get{background:rgba(59,130,246,.15);color:#93C5FD}
+/* ─── MAIN ──────────────────────────────────────────────── */
+.main{margin-left:var(--sidebar);flex:1}
+.content{max-width:860px;padding:48px 44px 100px}
+/* ─── SECTIONS ──────────────────────────────────────────── */
+.sec{margin-bottom:64px;scroll-margin-top:28px}
+.sec-h{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.3px}
+.sec-sub{color:var(--text2);line-height:1.72;font-size:13.5px;margin-bottom:28px;max-width:660px}
+.divider{height:1px;background:var(--border);margin:44px 0}
+/* ─── ENDPOINT ──────────────────────────────────────────── */
+.ep{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px}
+.ep-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ep-method{font-family:var(--fm);font-weight:700;font-size:12px;padding:5px 12px;border-radius:6px;flex-shrink:0}
+.m-post{background:rgba(16,185,129,.12);color:#6EE7B7;border:1px solid rgba(16,185,129,.22)}
+.m-get{background:rgba(59,130,246,.12);color:#93C5FD;border:1px solid rgba(59,130,246,.22)}
+.ep-path{font-family:var(--fm);font-size:14px;font-weight:500;color:var(--text)}
+.ep-auth{margin-left:auto;font-size:10px;font-family:var(--fm);padding:2px 8px;border-radius:4px;
+  background:var(--amber-s);color:#FCD34D;border:1px solid rgba(245,158,11,.22)}
+.ep-body{padding:22px}
+.ep-desc{color:var(--text2);line-height:1.7;margin-bottom:20px;font-size:13.5px}
+/* ─── TABS ──────────────────────────────────────────────── */
+.tabs{display:flex;gap:2px;margin-bottom:14px;background:var(--bg3);border-radius:8px;padding:3px;width:fit-content}
+.tab{padding:5px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);color:var(--text3);
+  cursor:pointer;transition:all .12s;font-weight:500;border:none;background:none}
+.tab.on{background:var(--bg4);color:var(--text)}
+.tc{display:none}.tc.on{display:block}
+/* ─── PARAM TABLE ───────────────────────────────────────── */
+.pt{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px}
+.pt th{text-align:left;padding:7px 12px;font-family:var(--fm);font-size:9px;font-weight:600;
+  letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2)}
+.pt td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55}
+.pt tr:last-child td{border-bottom:none}
+.pn{font-family:var(--fm);font-size:12px;color:var(--text);font-weight:500}
+.pr{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:3px;margin-left:4px;
+  background:rgba(239,68,68,.12);color:#FCA5A5}
+.po{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:3px;margin-left:4px;
+  background:rgba(100,116,139,.11);color:#94A3B8}
+.pt-type{font-family:var(--fm);font-size:11px;color:var(--violet);font-weight:500}
+.pt-desc{color:var(--text4);font-size:12.5px}
+/* ─── CODE BLOCK ────────────────────────────────────────── */
+.cb{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.cb-head{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);background:rgba(255,255,255,.018)}
+.cb-lang{font-size:10px;font-family:var(--fm);color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.cb-copy{font-size:10px;font-family:var(--fm);color:var(--blue);cursor:pointer;background:none;border:none;
+  padding:1px 7px;border-radius:3px;transition:background .12s}
+.cb-copy:hover{background:var(--blue-s)}
+.cb-body{padding:14px;overflow-x:auto}
+.cb-body pre{font-family:var(--fm);font-size:11.5px;line-height:1.68;color:var(--text2);white-space:pre}
+/* syntax */
+.sk{color:#93C5FD}.ss{color:#6EE7B7}.sn{color:#FCD34D}.sb2{color:#C4B5FD}
+.sc{color:#374151;font-style:italic}.smt{color:#93C5FD}.su{color:#6EE7B7}.sh{color:#FCD34D}.sv{color:#6EE7B7}
+/* ─── NOTES ─────────────────────────────────────────────── */
+.note{border-radius:9px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px;font-size:12.5px;line-height:1.68}
+.note-i{background:var(--blue-s);border:1px solid rgba(59,130,246,.22);color:#BFDBFE}
+.note-w{background:var(--amber-s);border:1px solid rgba(245,158,11,.22);color:#FDE68A}
+.ni{flex-shrink:0;font-size:15px}
+code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
+  padding:1px 5px;border-radius:4px;color:var(--text2)}
+/* ─── STATUS PILLS ──────────────────────────────────────── */
+.st{display:inline-flex;align-items:center;font-family:var(--fm);font-size:11px;
+  font-weight:600;padding:3px 9px;border-radius:5px}
+.s2{background:var(--green-s);color:#6EE7B7;border:1px solid rgba(16,185,129,.22)}
+.s4{background:var(--amber-s);color:#FCD34D;border:1px solid rgba(245,158,11,.22)}
+.s5{background:var(--red-s);color:#FCA5A5;border:1px solid rgba(239,68,68,.22)}
+/* ─── EVENT CARD ────────────────────────────────────────── */
+.ev{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:10px}
+.ev-name{font-family:var(--fm);font-size:12.5px;font-weight:600;color:var(--green);margin-bottom:5px}
+.ev-desc{font-size:12.5px;color:var(--text4);margin-bottom:12px;line-height:1.65}
+/* ─── STATUS TABLE ──────────────────────────────────────── */
+.st-row{display:grid;grid-template-columns:190px 100px 1fr;padding:12px 18px;border-bottom:1px solid var(--border);align-items:start}
+.st-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-mark">NB</div>
+      <span class="sb-brand">NBPay</span>
+    </div>
+    <span class="sb-ver">API Reference · v1.0</span>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sect">Getting Started</div>
+    <a class="sb-link on" onclick="nav(this,'overview')">Overview</a>
+    <a class="sb-link" onclick="nav(this,'auth')">Authentication</a>
+    <a class="sb-link" onclick="nav(this,'idempotency')">Idempotency</a>
+    <a class="sb-link" onclick="nav(this,'errors')">Errors &amp; Rate Limits</a>
+
+    <div class="sb-sect">Payments</div>
+    <a class="sb-link" onclick="nav(this,'create-payment')">
+      <span class="sb-method sm-post">POST</span>Create Payment
+    </a>
+    <a class="sb-link" onclick="nav(this,'get-payment')">
+      <span class="sb-method sm-get">GET</span>Get Payment
+    </a>
+    <a class="sb-link" onclick="nav(this,'list-payments')">
+      <span class="sb-method sm-get">GET</span>List Payments
+    </a>
+
+    <div class="sb-sect">Refunds</div>
+    <a class="sb-link" onclick="nav(this,'create-refund')">
+      <span class="sb-method sm-post">POST</span>Create Refund
+    </a>
+    <a class="sb-link" onclick="nav(this,'get-refund')">
+      <span class="sb-method sm-get">GET</span>Get Refund
+    </a>
+
+    <div class="sb-sect">Webhooks</div>
+    <a class="sb-link" onclick="nav(this,'webhook-events')">Event Types</a>
+    <a class="sb-link" onclick="nav(this,'webhook-verify')">Signature Verification</a>
+
+    <div class="sb-sect">Reference</div>
+    <a class="sb-link" onclick="nav(this,'payment-object')">Payment Object</a>
+    <a class="sb-link" onclick="nav(this,'statuses')">Payment Statuses</a>
+  </div>
+</nav>
+
+<!-- ── MAIN ─────────────────────────────────────────────── -->
+<main class="main"><div class="content">
+
+<!-- OVERVIEW ───────────────────────────────────────────── -->
+<div class="sec" id="overview">
+  <div class="sec-h">NBPay API Reference</div>
+  <div class="sec-sub">Accept payments from Russian customers using local payment methods — Mir cards, Visa/Mastercard (Russian-issued), and SBP Instant Payments. Integrate once with NBPay; we handle the rest.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
+      <div style="font-size:10px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px">Base URL</div>
+      <code style="font-size:13px;color:var(--green)">https://api.nbpay.io/v1</code>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
+      <div style="font-size:10px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px">Sandbox URL</div>
+      <code style="font-size:13px;color:var(--amber)">https://sandbox.api.nbpay.io/v1</code>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
+      <div style="font-size:19px;margin-bottom:8px">🔐</div>
+      <div style="font-family:var(--fd);font-weight:700;font-size:13px;margin-bottom:4px">API Key Auth</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">Bearer token in <code>Authorization</code> header on every request</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
+      <div style="font-size:19px;margin-bottom:8px">📋</div>
+      <div style="font-family:var(--fd);font-weight:700;font-size:13px;margin-bottom:4px">REST · JSON</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">Standard HTTP verbs. Request and response bodies in JSON.</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
+      <div style="font-size:19px;margin-bottom:8px">🔔</div>
+      <div style="font-family:var(--fd);font-weight:700;font-size:13px;margin-bottom:4px">Webhooks</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">Signed real-time HTTP callbacks for every payment event</div>
+    </div>
+  </div>
+
+  <div class="note note-i" style="margin-top:20px">
+    <span class="ni">ℹ️</span>
+    <span>All amounts are in <strong>Russian Rubles (RUB)</strong>, expressed as an integer in <strong>kopecks</strong> (1 RUB = 100 kopecks). Your settlement is paid out in your contracted foreign currency (USD, EUR, AED, etc.) on the schedule defined in your agreement.</span>
+  </div>
+</div>
+
+<!-- AUTH ────────────────────────────────────────────────── -->
+<div class="sec" id="auth">
+  <div class="sec-h">Authentication</div>
+  <div class="sec-sub">All API requests must include your secret API key as a Bearer token in the <code>Authorization</code> header. Manage your keys in the <strong>NBPay Merchant Portal → Settings → API Keys</strong>.</div>
+
+  <div class="cb">
+    <div class="cb-head"><span class="cb-lang">HTTP</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+    <div class="cb-body"><pre><span class="smt">POST</span>  <span class="su">/v1/payments</span>
+<span class="sh">Authorization:</span> <span class="sv">Bearer nbpay_live_sk_xxxxxxxxxxxxxxxxxxx</span>
+<span class="sh">Content-Type:</span>  <span class="sv">application/json</span>
+<span class="sh">Idempotency-Key:</span> <span class="sv">a4f2b1c8-7d3e-4a9b-b5c2-1e7f0d3a8c4b</span></pre></div>
+  </div>
+
+  <table class="pt" style="margin-top:4px">
+    <tr><th>Key prefix</th><th>Environment</th><th>Description</th></tr>
+    <tr>
+      <td><code>nbpay_live_sk_</code></td>
+      <td><span style="color:var(--green);font-size:12px;font-family:var(--fm)">Production</span></td>
+      <td class="pt-desc">Real money. Use only on your server, never client-side.</td>
+    </tr>
+    <tr>
+      <td><code>nbpay_test_sk_</code></td>
+      <td><span style="color:var(--amber);font-size:12px;font-family:var(--fm)">Sandbox</span></td>
+      <td class="pt-desc">No real transactions. Safe for development and QA. Use with the sandbox base URL.</td>
+    </tr>
+  </table>
+
+  <div class="note note-w">
+    <span class="ni">⚠️</span>
+    <span>Never expose your secret key in frontend code, public repos, or logs. If a key is compromised, rotate it immediately in the Merchant Portal. NBPay will never ask for your key over email.</span>
+  </div>
+</div>
+
+<!-- IDEMPOTENCY ─────────────────────────────────────────── -->
+<div class="sec" id="idempotency">
+  <div class="sec-h">Idempotency</div>
+  <div class="sec-sub">All <code>POST</code> requests support — and we strongly recommend using — idempotency keys to safely retry failed requests without creating duplicates.</div>
+
+  <p style="color:var(--text2);margin-bottom:14px;line-height:1.7;font-size:13px">Add a <code>Idempotency-Key</code> header with a unique value (UUID v4 recommended) for each distinct operation. If the request fails due to a network error, resend with the same key — NBPay returns the original response.</p>
+
+  <div class="cb">
+    <div class="cb-head"><span class="cb-lang">Header</span></div>
+    <div class="cb-body"><pre><span class="sh">Idempotency-Key:</span> <span class="sv">a4f2b1c8-7d3e-4a9b-b5c2-1e7f0d3a8c4b</span></pre></div>
+  </div>
+
+  <table class="pt">
+    <tr><th>Behaviour</th><th>Description</th></tr>
+    <tr><td class="pt-desc">Same key + same params</td><td class="pt-desc">Returns the cached original response. Safe to retry.</td></tr>
+    <tr><td class="pt-desc">Same key + different params</td><td class="pt-desc">Returns <code>409 DUPLICATE_KEY</code> error.</td></tr>
+    <tr><td class="pt-desc">Key expiry</td><td class="pt-desc">Keys are retained for 24 hours after the original request.</td></tr>
+  </table>
+</div>
+
+<!-- ERRORS ─────────────────────────────────────────────── -->
+<div class="sec" id="errors">
+  <div class="sec-h">Errors &amp; Rate Limits</div>
+  <div class="sec-sub">NBPay uses standard HTTP status codes. Error responses always include a JSON body with a machine-readable <code>code</code> field.</div>
+
+  <div class="cb">
+    <div class="cb-head"><span class="cb-lang">Error Response Shape</span></div>
+    <div class="cb-body"><pre>{
+  <span class="sk">"error"</span>: {
+    <span class="sk">"code"</span>:    <span class="ss">"INVALID_AMOUNT"</span>,
+    <span class="sk">"message"</span>: <span class="ss">"Amount must be a positive integer in kopecks (min 100)"</span>,
+    <span class="sk">"param"</span>:   <span class="ss">"amount"</span>   <span class="sc">// present when error relates to a specific field</span>
+  }
+}</pre></div>
+  </div>
+
+  <div style="border:1px solid var(--border);border-radius:11px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:8px 16px;
+      background:rgba(255,255,255,.02);border-bottom:1px solid var(--border)">
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">HTTP</span>
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Code</span>
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Meaning</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s2">200</span><code>—</code><span style="color:var(--text4);font-size:12.5px">Success</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">400</span><code>INVALID_AMOUNT</code><span style="color:var(--text4);font-size:12.5px">Amount missing, zero, or not an integer</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">400</span><code>INVALID_CURRENCY</code><span style="color:var(--text4);font-size:12.5px">Currency must be <code>RUB</code></span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s5">401</span><code>UNAUTHORIZED</code><span style="color:var(--text4);font-size:12.5px">API key missing or invalid</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">404</span><code>NOT_FOUND</code><span style="color:var(--text4);font-size:12.5px">Payment or refund does not exist (or belongs to another merchant)</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">409</span><code>DUPLICATE_KEY</code><span style="color:var(--text4);font-size:12.5px">Idempotency key reused with different parameters</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">422</span><code>PAYMENT_NOT_REFUNDABLE</code><span style="color:var(--text4);font-size:12.5px">Payment status does not allow refunds</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s4">422</span><code>REFUND_EXCEEDS_AMOUNT</code><span style="color:var(--text4);font-size:12.5px">Refund amount exceeds remaining refundable balance</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;border-bottom:1px solid var(--border);align-items:center">
+      <span class="st s5">429</span><code>RATE_LIMITED</code><span style="color:var(--text4);font-size:12.5px">Too many requests. Respect <code>Retry-After</code> header (seconds).</span>
+    </div>
+    <div style="display:grid;grid-template-columns:68px 180px 1fr;padding:9px 16px;align-items:center">
+      <span class="st s5">500</span><code>INTERNAL_ERROR</code><span style="color:var(--text4);font-size:12.5px">Server error. Safe to retry with exponential backoff.</span>
+    </div>
+  </div>
+
+  <p style="margin-top:16px;color:var(--text4);font-size:12.5px;line-height:1.7"><strong style="color:var(--text2)">Rate limits:</strong> 300 requests per minute per API key. On <code>429</code>, wait the number of seconds specified in the <code>Retry-After</code> response header before retrying.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- CREATE PAYMENT ─────────────────────────────────────── -->
+<div class="sec" id="create-payment">
+  <div class="sec-h">Create Payment</div>
+  <div class="sec-sub">Initiates a new payment session and returns a <code>payment_url</code> to redirect your customer to. The customer completes the payment on NBPay's hosted page — no PCI DSS scope for your integration.</div>
+
+  <div class="ep">
+    <div class="ep-head">
+      <span class="ep-method m-post">POST</span>
+      <span class="ep-path">/v1/payments</span>
+      <span class="ep-auth">🔐 Auth required</span>
+    </div>
+    <div class="ep-body">
+      <div class="tabs">
+        <button class="tab on" onclick="tab(this,'cp-req')">Request body</button>
+        <button class="tab" onclick="tab(this,'cp-res')">200 Response</button>
+        <button class="tab" onclick="tab(this,'cp-curl')">cURL</button>
+        <button class="tab" onclick="tab(this,'cp-node')">Node.js</button>
+        <button class="tab" onclick="tab(this,'cp-py')">Python</button>
+      </div>
+
+      <div class="tc on" id="cp-req">
+        <table class="pt">
+          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+          <tr>
+            <td><span class="pn">amount</span><span class="pr">required</span></td>
+            <td><span class="pt-type">integer</span></td>
+            <td class="pt-desc">Payment amount in kopecks. 1 RUB = 100 kopecks. Minimum: <code>100</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">currency</span><span class="pr">required</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">Must be <code>"RUB"</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">order_id</span><span class="pr">required</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">Your unique order identifier. Max 64 characters. Used to look up payments from your system.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">return_url</span><span class="pr">required</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">HTTPS URL to redirect the customer to after the payment page closes (success or failure). We append <code>?payment_id=pay_xxx&amp;status=COMPLETED</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">description</span><span class="po">optional</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">Human-readable description shown to the customer on the payment page. Max 255 characters.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">payment_method</span><span class="po">optional</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">Pre-select method: <code>"CARD"</code> or <code>"SBP"</code>. Omit to let the customer choose.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">customer</span><span class="po">optional</span></td>
+            <td><span class="pt-type">object</span></td>
+            <td class="pt-desc">Customer details. Fields: <code>email</code> (string) and <code>phone</code> (string, E.164 format — required for SBP).</td>
+          </tr>
+          <tr>
+            <td><span class="pn">metadata</span><span class="po">optional</span></td>
+            <td><span class="pt-type">object</span></td>
+            <td class="pt-desc">Up to 10 key-value string pairs for your own use. Returned as-is in all responses and webhooks. Max 500 chars per value.</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="tc" id="cp-res">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">JSON · 200 OK</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>{
+  <span class="sk">"id"</span>:             <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"object"</span>:         <span class="ss">"payment"</span>,
+  <span class="sk">"status"</span>:         <span class="ss">"PENDING"</span>,
+  <span class="sk">"amount"</span>:         <span class="sn">100000</span>,
+  <span class="sk">"currency"</span>:       <span class="ss">"RUB"</span>,
+  <span class="sk">"order_id"</span>:       <span class="ss">"order_abc123"</span>,
+  <span class="sk">"description"</span>:    <span class="ss">"Premium subscription – 1 month"</span>,
+  <span class="sk">"payment_url"</span>:    <span class="ss">"https://pay.nbpay.io/p/2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"return_url"</span>:     <span class="ss">"https://yourstore.com/thank-you"</span>,
+  <span class="sk">"expires_at"</span>:     <span class="ss">"2026-03-10T12:30:00Z"</span>,
+  <span class="sk">"created_at"</span>:     <span class="ss">"2026-03-10T12:00:00Z"</span>,
+  <span class="sk">"completed_at"</span>:   <span class="sb2">null</span>,
+  <span class="sk">"customer"</span>:       { <span class="sk">"email"</span>: <span class="ss">"user@example.com"</span> },
+  <span class="sk">"metadata"</span>:       { <span class="sk">"user_id"</span>: <span class="ss">"usr_9912"</span> }
+}</pre></div>
+        </div>
+        <div class="note note-i">
+          <span class="ni">ℹ️</span>
+          <span>Redirect your customer to <code>payment_url</code> immediately. The URL is valid for <strong>30 minutes</strong>. After expiry, create a new payment.</span>
+        </div>
+      </div>
+
+      <div class="tc" id="cp-curl">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>curl -X POST https://api.nbpay.io/v1/payments \
+  -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span> \
+  -H <span class="ss">"Content-Type: application/json"</span> \
+  -H <span class="ss">"Idempotency-Key: $(uuidgen)"</span> \
+  -d <span class="ss">'{
+    "amount":       100000,
+    "currency":     "RUB",
+    "order_id":     "order_abc123",
+    "return_url":   "https://yourstore.com/thank-you",
+    "description":  "Premium subscription – 1 month",
+    "customer":     { "email": "user@example.com" },
+    "metadata":     { "user_id": "usr_9912" }
+  }'</span></pre></div>
+        </div>
+      </div>
+
+      <div class="tc" id="cp-node">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">Node.js (fetch — Node 18+)</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>import crypto from <span class="ss">'crypto'</span>;
+
+const payment = await fetch(<span class="ss">'https://api.nbpay.io/v1/payments'</span>, {
+  method: <span class="ss">'POST'</span>,
+  headers: {
+    <span class="ss">'Authorization'</span>:  <span class="ss">`Bearer ${process.env.NBPAY_SECRET_KEY}`</span>,
+    <span class="ss">'Content-Type'</span>:   <span class="ss">'application/json'</span>,
+    <span class="ss">'Idempotency-Key'</span>: crypto.randomUUID(),
+  },
+  body: JSON.stringify({
+    amount:      <span class="sn">100000</span>,   <span class="sc">// 1 000.00 RUB</span>
+    currency:    <span class="ss">'RUB'</span>,
+    order_id:    <span class="ss">'order_abc123'</span>,
+    return_url:  <span class="ss">'https://yourstore.com/thank-you'</span>,
+    description: <span class="ss">'Premium subscription – 1 month'</span>,
+    customer:    { email: <span class="ss">'user@example.com'</span> },
+    metadata:    { user_id: <span class="ss">'usr_9912'</span> },
+  }),
+}).then(r => r.json());
+
+<span class="sc">// Redirect your customer:</span>
+res.redirect(payment.payment_url);</pre></div>
+        </div>
+      </div>
+
+      <div class="tc" id="cp-py">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">Python (requests)</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>import os, uuid, requests
+
+response = requests.post(
+    <span class="ss">"https://api.nbpay.io/v1/payments"</span>,
+    headers={
+        <span class="ss">"Authorization"</span>:  f<span class="ss">"Bearer {os.environ['NBPAY_SECRET_KEY']}"</span>,
+        <span class="ss">"Idempotency-Key"</span>: str(uuid.uuid4()),
+    },
+    json={
+        <span class="ss">"amount"</span>:      <span class="sn">100000</span>,  <span class="sc"># 1 000.00 RUB</span>
+        <span class="ss">"currency"</span>:    <span class="ss">"RUB"</span>,
+        <span class="ss">"order_id"</span>:    <span class="ss">"order_abc123"</span>,
+        <span class="ss">"return_url"</span>:  <span class="ss">"https://yourstore.com/thank-you"</span>,
+        <span class="ss">"description"</span>: <span class="ss">"Premium subscription – 1 month"</span>,
+        <span class="ss">"customer"</span>:    {<span class="ss">"email"</span>: <span class="ss">"user@example.com"</span>},
+        <span class="ss">"metadata"</span>:    {<span class="ss">"user_id"</span>: <span class="ss">"usr_9912"</span>},
+    }
+)
+payment = response.json()
+<span class="sc"># payment["payment_url"] → redirect customer here</span></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- GET PAYMENT ─────────────────────────────────────────── -->
+<div class="sec" id="get-payment">
+  <div class="sec-h">Get Payment</div>
+  <div class="sec-sub">Fetch the current state of a payment. Use this when the customer returns from the payment page, or to poll for status during processing.</div>
+
+  <div class="ep">
+    <div class="ep-head">
+      <span class="ep-method m-get">GET</span>
+      <span class="ep-path">/v1/payments/{payment_id}</span>
+      <span class="ep-auth">🔐 Auth required</span>
+    </div>
+    <div class="ep-body">
+      <div class="tabs">
+        <button class="tab on" onclick="tab(this,'gp-res')">200 Response</button>
+        <button class="tab" onclick="tab(this,'gp-curl')">cURL</button>
+      </div>
+      <div class="tc on" id="gp-res">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">JSON · 200 OK</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>{
+  <span class="sk">"id"</span>:               <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"object"</span>:           <span class="ss">"payment"</span>,
+  <span class="sk">"status"</span>:           <span class="ss">"COMPLETED"</span>,
+  <span class="sk">"amount"</span>:           <span class="sn">100000</span>,
+  <span class="sk">"currency"</span>:         <span class="ss">"RUB"</span>,
+  <span class="sk">"order_id"</span>:         <span class="ss">"order_abc123"</span>,
+  <span class="sk">"payment_method"</span>:   <span class="ss">"CARD"</span>,
+  <span class="sk">"card"</span>: {
+    <span class="sk">"brand"</span>:           <span class="ss">"MIR"</span>,
+    <span class="sk">"last4"</span>:           <span class="ss">"7742"</span>
+  },
+  <span class="sk">"refunded_amount"</span>:  <span class="sn">0</span>,
+  <span class="sk">"payment_url"</span>:      <span class="sb2">null</span>,
+  <span class="sk">"created_at"</span>:       <span class="ss">"2026-03-10T12:00:00Z"</span>,
+  <span class="sk">"completed_at"</span>:     <span class="ss">"2026-03-10T12:04:22Z"</span>,
+  <span class="sk">"metadata"</span>:         { <span class="sk">"user_id"</span>: <span class="ss">"usr_9912"</span> }
+}</pre></div>
+        </div>
+        <div class="note note-i">
+          <span class="ni">ℹ️</span>
+          <span>Always use webhooks as the primary mechanism for status updates. Poll <code>GET /payments/{id}</code> only as a fallback when a webhook is not received within your expected timeframe.</span>
+        </div>
+      </div>
+      <div class="tc" id="gp-curl">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>curl https://api.nbpay.io/v1/payments/pay_2xKj8mNpQr4vBcDf \
+  -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIST PAYMENTS ───────────────────────────────────────── -->
+<div class="sec" id="list-payments">
+  <div class="sec-h">List Payments</div>
+  <div class="sec-sub">Returns a cursor-paginated list of payments, ordered newest first.</div>
+
+  <div class="ep">
+    <div class="ep-head">
+      <span class="ep-method m-get">GET</span>
+      <span class="ep-path">/v1/payments</span>
+      <span class="ep-auth">🔐 Auth required</span>
+    </div>
+    <div class="ep-body">
+      <table class="pt">
+        <tr><th>Query param</th><th>Type</th><th>Description</th></tr>
+        <tr>
+          <td><span class="pn">limit</span><span class="po">optional</span></td>
+          <td><span class="pt-type">integer</span></td>
+          <td class="pt-desc">Results per page. Default <code>20</code>, max <code>100</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="pn">starting_after</span><span class="po">optional</span></td>
+          <td><span class="pt-type">string</span></td>
+          <td class="pt-desc">Payment ID. Returns results created after this payment (for forward pagination).</td>
+        </tr>
+        <tr>
+          <td><span class="pn">status</span><span class="po">optional</span></td>
+          <td><span class="pt-type">string</span></td>
+          <td class="pt-desc">Filter by status. One of: <code>PENDING</code> <code>COMPLETED</code> <code>FAILED</code> <code>REFUNDED</code> <code>CHARGEBACK</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="pn">created_from</span><span class="po">optional</span></td>
+          <td><span class="pt-type">string</span></td>
+          <td class="pt-desc">ISO 8601 datetime. Lower bound on <code>created_at</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="pn">created_to</span><span class="po">optional</span></td>
+          <td><span class="pt-type">string</span></td>
+          <td class="pt-desc">ISO 8601 datetime. Upper bound on <code>created_at</code>.</td>
+        </tr>
+      </table>
+      <div class="cb">
+        <div class="cb-head"><span class="cb-lang">Response shape</span></div>
+        <div class="cb-body"><pre>{
+  <span class="sk">"object"</span>:      <span class="ss">"list"</span>,
+  <span class="sk">"data"</span>:        [ <span class="sc">/* array of Payment objects */</span> ],
+  <span class="sk">"has_more"</span>:    <span class="sb2">true</span>,
+  <span class="sk">"next_cursor"</span>: <span class="ss">"pay_xxxxxxxxxxxxxx"</span>
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- CREATE REFUND ───────────────────────────────────────── -->
+<div class="sec" id="create-refund">
+  <div class="sec-h">Create Refund</div>
+  <div class="sec-sub">Issue a full or partial refund against a completed payment. Funds are returned to the customer's original payment method within 3–5 business days.</div>
+
+  <div class="ep">
+    <div class="ep-head">
+      <span class="ep-method m-post">POST</span>
+      <span class="ep-path">/v1/payments/{payment_id}/refunds</span>
+      <span class="ep-auth">🔐 Auth required</span>
+    </div>
+    <div class="ep-body">
+      <div class="tabs">
+        <button class="tab on" onclick="tab(this,'cr-req')">Request body</button>
+        <button class="tab" onclick="tab(this,'cr-res')">200 Response</button>
+        <button class="tab" onclick="tab(this,'cr-curl')">cURL</button>
+      </div>
+      <div class="tc on" id="cr-req">
+        <table class="pt">
+          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+          <tr>
+            <td><span class="pn">amount</span><span class="po">optional</span></td>
+            <td><span class="pt-type">integer</span></td>
+            <td class="pt-desc">Amount to refund in kopecks. Omit to refund the full remaining amount. Must not exceed the original amount minus prior refunds.</td>
+          </tr>
+          <tr>
+            <td><span class="pn">reason</span><span class="po">optional</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc"><code>"duplicate"</code> · <code>"fraudulent"</code> · <code>"customer_request"</code> · <code>"other"</code></td>
+          </tr>
+          <tr>
+            <td><span class="pn">metadata</span><span class="po">optional</span></td>
+            <td><span class="pt-type">object</span></td>
+            <td class="pt-desc">Your key-value pairs for this refund.</td>
+          </tr>
+        </table>
+        <div class="note note-w">
+          <span class="ni">⚠️</span>
+          <span>Refunds are only possible for payments with status <code>COMPLETED</code> or <code>PARTIALLY_REFUNDED</code>. If a chargeback is open on the payment, refunds are blocked until the dispute resolves.</span>
+        </div>
+      </div>
+      <div class="tc" id="cr-res">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">JSON · 200 OK</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>{
+  <span class="sk">"id"</span>:          <span class="ss">"ref_5mTp3nRqYs8wCxEg"</span>,
+  <span class="sk">"object"</span>:      <span class="ss">"refund"</span>,
+  <span class="sk">"payment_id"</span>:  <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"status"</span>:      <span class="ss">"PENDING"</span>,
+  <span class="sk">"amount"</span>:      <span class="sn">50000</span>,
+  <span class="sk">"currency"</span>:    <span class="ss">"RUB"</span>,
+  <span class="sk">"reason"</span>:      <span class="ss">"customer_request"</span>,
+  <span class="sk">"created_at"</span>:  <span class="ss">"2026-03-10T15:22:00Z"</span>,
+  <span class="sk">"completed_at"</span>: <span class="sb2">null</span>,
+  <span class="sk">"metadata"</span>:    {}
+}</pre></div>
+        </div>
+      </div>
+      <div class="tc" id="cr-curl">
+        <div class="cb">
+          <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-body"><pre>curl -X POST \
+  https://api.nbpay.io/v1/payments/pay_2xKj8mNpQr4vBcDf/refunds \
+  -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span> \
+  -H <span class="ss">"Content-Type: application/json"</span> \
+  -H <span class="ss">"Idempotency-Key: $(uuidgen)"</span> \
+  -d <span class="ss">'{ "amount": 50000, "reason": "customer_request" }'</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GET REFUND ──────────────────────────────────────────── -->
+<div class="sec" id="get-refund">
+  <div class="sec-h">Get Refund</div>
+  <div class="sec-sub">Retrieve a specific refund by its ID.</div>
+  <div class="ep">
+    <div class="ep-head">
+      <span class="ep-method m-get">GET</span>
+      <span class="ep-path">/v1/payments/{payment_id}/refunds/{refund_id}</span>
+      <span class="ep-auth">🔐 Auth required</span>
+    </div>
+    <div class="ep-body">
+      <p style="color:var(--text4);font-size:13px;line-height:1.7">Returns a Refund object. Structure is identical to the Create Refund 200 response above. Refund statuses: <code>PENDING</code> → <code>COMPLETED</code> or <code>FAILED</code>.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- WEBHOOK EVENTS ─────────────────────────────────────── -->
+<div class="sec" id="webhook-events">
+  <div class="sec-h">Webhook Event Types</div>
+  <div class="sec-sub">NBPay sends a signed HTTP POST to your configured endpoint for every payment event. Configure your URL in <strong>Merchant Portal → Settings → Webhooks</strong>.</div>
+
+  <div class="note note-w">
+    <span class="ni">⚠️</span>
+    <span>Your endpoint must respond with any <code>2xx</code> status within <strong>10 seconds</strong>. If it doesn't, NBPay retries 5 times with exponential backoff: 10s · 60s · 5m · 30m · 2h. All delivery attempts are logged in your portal.</span>
+  </div>
+
+  <div class="note note-i">
+    <span class="ni">ℹ️</span>
+    <span>Webhook delivery is at-least-once. Your handler must be <strong>idempotent</strong> — use <code>data.id</code> as a deduplication key in your database before acting on any event.</span>
+  </div>
+
+  <div class="ev">
+    <div class="ev-name">payment.completed</div>
+    <div class="ev-desc">Fired when a payment is successfully authorized. This is your signal to fulfil the order.</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">Payload</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+      <div class="cb-body"><pre>{
+  <span class="sk">"event"</span>:      <span class="ss">"payment.completed"</span>,
+  <span class="sk">"created_at"</span>: <span class="ss">"2026-03-10T12:04:22Z"</span>,
+  <span class="sk">"data"</span>: {
+    <span class="sk">"id"</span>:       <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+    <span class="sk">"status"</span>:   <span class="ss">"COMPLETED"</span>,
+    <span class="sk">"amount"</span>:   <span class="sn">100000</span>,
+    <span class="sk">"order_id"</span>: <span class="ss">"order_abc123"</span>,
+    <span class="sc">// ... full Payment object</span>
+  }
+}</pre></div>
+    </div>
+  </div>
+
+  <div class="ev">
+    <div class="ev-name">payment.failed</div>
+    <div class="ev-desc">Fired when a payment attempt is declined — bank rejection, 3DS failure, or customer timeout. A new payment must be created to retry.</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">Payload</span></div>
+      <div class="cb-body"><pre>{
+  <span class="sk">"event"</span>: <span class="ss">"payment.failed"</span>,
+  <span class="sk">"data"</span>: {
+    <span class="sk">"id"</span>:             <span class="ss">"pay_3yLk9nOpSs5wDzHg"</span>,
+    <span class="sk">"status"</span>:         <span class="ss">"FAILED"</span>,
+    <span class="sk">"failure_reason"</span>: <span class="ss">"INSUFFICIENT_FUNDS"</span>,
+    <span class="sc">// possible values: INSUFFICIENT_FUNDS | 3DS_FAILED |
+    //  CARD_BLOCKED | EXPIRED | DECLINED | TIMEOUT</span>
+  }
+}</pre></div>
+    </div>
+  </div>
+
+  <div class="ev">
+    <div class="ev-name">refund.completed</div>
+    <div class="ev-desc">Fired when a refund has been successfully processed and funds returned to the customer.</div>
+  </div>
+
+  <div class="ev">
+    <div class="ev-name">refund.failed</div>
+    <div class="ev-desc">Fired when a refund could not be processed. Contact support with the refund ID.</div>
+  </div>
+
+  <div class="ev">
+    <div class="ev-name">chargeback.created</div>
+    <div class="ev-desc">Fired when the cardholder's bank initiates a chargeback dispute. <strong style="color:#FCA5A5">Action required</strong> — log in to the Merchant Portal to submit evidence within the deadline shown.</div>
+  </div>
+</div>
+
+<!-- WEBHOOK VERIFY ─────────────────────────────────────── -->
+<div class="sec" id="webhook-verify">
+  <div class="sec-h">Signature Verification</div>
+  <div class="sec-sub">Every webhook request includes an <code>X-NBPay-Signature</code> header. Always verify this signature before processing the event.</div>
+
+  <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:14px">The signature is <code>HMAC-SHA256</code> of the raw request body bytes, keyed with your webhook secret (find it in <strong>Merchant Portal → Settings → Webhooks</strong>).</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="tab(this,'wv-node')">Node.js</button>
+    <button class="tab" onclick="tab(this,'wv-py')">Python</button>
+    <button class="tab" onclick="tab(this,'wv-php')">PHP</button>
+  </div>
+
+  <div class="tc on" id="wv-node">
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">Node.js · Express</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+      <div class="cb-body"><pre>import crypto from <span class="ss">'crypto'</span>;
+
+function verifySignature(rawBody, signature, secret) {
+  const expected = crypto
+    .createHmac(<span class="ss">'sha256'</span>, secret)
+    .update(rawBody)          <span class="sc">// rawBody must be Buffer, NOT parsed JSON</span>
+    .digest(<span class="ss">'hex'</span>);
+  <span class="sc">// Use timingSafeEqual to prevent timing attacks</span>
+  return crypto.timingSafeEqual(
+    Buffer.from(expected, <span class="ss">'utf8'</span>),
+    Buffer.from(signature, <span class="ss">'utf8'</span>)
+  );
+}
+
+<span class="sc">// Express: receive raw body</span>
+app.post(<span class="ss">'/webhook'</span>, express.raw({ type: <span class="ss">'application/json'</span> }), (req, res) => {
+  const sig = req.headers[<span class="ss">'x-nbpay-signature'</span>];
+
+  if (!verifySignature(req.body, sig, process.env.NBPAY_WEBHOOK_SECRET)) {
+    return res.status(<span class="sn">401</span>).send(<span class="ss">'Invalid signature'</span>);
+  }
+
+  const event = JSON.parse(req.body);
+  switch (event.event) {
+    case <span class="ss">'payment.completed'</span>: await fulfil(event.data); break;
+    case <span class="ss">'refund.completed'</span>:  await handleRefund(event.data); break;
+  }
+  res.sendStatus(<span class="sn">200</span>);
+});</pre></div>
+    </div>
+  </div>
+
+  <div class="tc" id="wv-py">
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">Python · Flask</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+      <div class="cb-body"><pre>import os, hmac, hashlib
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+
+def verify_signature(raw_body: bytes, signature: str, secret: str) -> bool:
+    expected = hmac.new(
+        secret.encode(), raw_body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+@app.route(<span class="ss">"/webhook"</span>, methods=[<span class="ss">"POST"</span>])
+def webhook():
+    sig = request.headers.get(<span class="ss">"X-NBPay-Signature"</span>, <span class="ss">""</span>)
+    if not verify_signature(
+        request.get_data(), sig, os.environ[<span class="ss">"NBPAY_WEBHOOK_SECRET"</span>]
+    ):
+        abort(<span class="sn">401</span>)
+
+    event = request.get_json()
+    if event[<span class="ss">"event"</span>] == <span class="ss">"payment.completed"</span>:
+        fulfil(event[<span class="ss">"data"</span>])
+    return <span class="ss">""</span>, <span class="sn">200</span></pre></div>
+    </div>
+  </div>
+
+  <div class="tc" id="wv-php">
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">PHP</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+      <div class="cb-body"><pre>$rawBody  = file_get_contents(<span class="ss">'php://input'</span>);
+$sig      = $_SERVER[<span class="ss">'HTTP_X_NBPAY_SIGNATURE'</span>] ?? <span class="ss">''</span>;
+$secret   = getenv(<span class="ss">'NBPAY_WEBHOOK_SECRET'</span>);
+
+$expected = hash_hmac(<span class="ss">'sha256'</span>, $rawBody, $secret);
+
+if (!hash_equals($expected, $sig)) {
+    http_response_code(<span class="sn">401</span>);
+    exit(<span class="ss">'Invalid signature'</span>);
+}
+
+$event = json_decode($rawBody, true);
+if ($event[<span class="ss">'event'</span>] === <span class="ss">'payment.completed'</span>) {
+    fulfil($event[<span class="ss">'data'</span>]);
+}
+http_response_code(<span class="sn">200</span>);</pre></div>
+    </div>
+  </div>
+
+  <div class="note note-w" style="margin-top:14px">
+    <span class="ni">⚠️</span>
+    <span>Always use a <strong>timing-safe comparison</strong> (<code>timingSafeEqual</code> / <code>hmac.compare_digest</code> / <code>hash_equals</code>). Regular string comparison is vulnerable to timing attacks and must not be used for signature verification.</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PAYMENT OBJECT ─────────────────────────────────────── -->
+<div class="sec" id="payment-object">
+  <div class="sec-h">Payment Object</div>
+  <div class="sec-sub">The complete Payment object is returned by the Create, Get, and List Payment endpoints, and embedded in all payment webhook payloads.</div>
+
+  <table class="pt">
+    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    <tr><td><span class="pn">id</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Unique NBPay payment ID. Prefix: <code>pay_</code>.</td></tr>
+    <tr><td><span class="pn">object</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Always <code>"payment"</code>.</td></tr>
+    <tr><td><span class="pn">status</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Current status. See Payment Statuses.</td></tr>
+    <tr><td><span class="pn">amount</span></td><td><span class="pt-type">integer</span></td><td class="pt-desc">Original amount in kopecks. 1 RUB = 100 kopecks.</td></tr>
+    <tr><td><span class="pn">currency</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Always <code>"RUB"</code>.</td></tr>
+    <tr><td><span class="pn">order_id</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Your order identifier provided at creation.</td></tr>
+    <tr><td><span class="pn">description</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Payment description.</td></tr>
+    <tr><td><span class="pn">payment_url</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Customer redirect URL. Present only when status is <code>PENDING</code>.</td></tr>
+    <tr><td><span class="pn">payment_method</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc"><code>"CARD"</code> or <code>"SBP"</code>. Set after the customer selects a method.</td></tr>
+    <tr><td><span class="pn">card</span></td><td><span class="pt-type">object · null</span></td><td class="pt-desc">Card details for card payments: <code>brand</code> (MIR / VISA / MASTERCARD), <code>last4</code>.</td></tr>
+    <tr><td><span class="pn">refunded_amount</span></td><td><span class="pt-type">integer</span></td><td class="pt-desc">Total refunded in kopecks. <code>0</code> if no refunds issued.</td></tr>
+    <tr><td><span class="pn">failure_reason</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Machine-readable failure code. Present only when status is <code>FAILED</code>.</td></tr>
+    <tr><td><span class="pn">customer</span></td><td><span class="pt-type">object · null</span></td><td class="pt-desc">Customer object: <code>email</code>, <code>phone</code>.</td></tr>
+    <tr><td><span class="pn">metadata</span></td><td><span class="pt-type">object</span></td><td class="pt-desc">Your key-value pairs, returned as provided.</td></tr>
+    <tr><td><span class="pn">expires_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. Payment URL expiry. Present only while <code>PENDING</code>.</td></tr>
+    <tr><td><span class="pn">created_at</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">ISO 8601. Payment creation timestamp.</td></tr>
+    <tr><td><span class="pn">completed_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. When payment reached a terminal status.</td></tr>
+  </table>
+</div>
+
+<!-- STATUSES ────────────────────────────────────────────── -->
+<div class="sec" id="statuses">
+  <div class="sec-h">Payment Statuses</div>
+  <div class="sec-sub">A payment progresses through the following statuses. Only <code>COMPLETED</code> means money moved successfully.</div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:24px">
+    <div style="display:grid;grid-template-columns:185px 95px 1fr;padding:9px 18px;
+      background:rgba(255,255,255,.018);border-bottom:1px solid var(--border2)">
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Status</span>
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Terminal?</span>
+      <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Meaning</span>
+    </div>
+    <div class="st-row">
+      <code style="color:#FCD34D">PENDING</code>
+      <span style="font-size:12px;color:var(--text3)">No</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Payment created. Customer redirected to payment page or in the process of completing it.</span>
+    </div>
+    <div class="st-row">
+      <code style="color:#6EE7B7">COMPLETED</code>
+      <span style="font-size:12px;color:var(--text3)">Yes</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Authorized and funds reserved. Safe to fulfil the customer's order.</span>
+    </div>
+    <div class="st-row">
+      <code style="color:#FCA5A5">FAILED</code>
+      <span style="font-size:12px;color:var(--text3)">Yes</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Declined by bank, 3DS failure, or expired. No funds moved. Create a new payment to retry.</span>
+    </div>
+    <div class="st-row">
+      <code style="color:#94A3B8">REFUNDED</code>
+      <span style="font-size:12px;color:var(--text3)">Yes</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Fully refunded. No further refunds are possible.</span>
+    </div>
+    <div class="st-row">
+      <code style="color:#93C5FD">PARTIALLY_REFUNDED</code>
+      <span style="font-size:12px;color:var(--text3)">No</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">One or more partial refunds issued. Further partial refunds up to original amount are allowed.</span>
+    </div>
+    <div class="st-row" style="border-bottom:none">
+      <code style="color:#FBB6CE">CHARGEBACK</code>
+      <span style="font-size:12px;color:var(--text3)">No</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Chargeback initiated by cardholder's bank. Funds frozen in dispute. Log in to the portal to submit evidence.</span>
+    </div>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
+    <div style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px">Status transitions</div>
+    <div style="font-family:var(--fm);font-size:12px;color:var(--text2);line-height:2.2">
+      <span style="color:#FCD34D">PENDING</span><span style="color:var(--text3)"> → </span><span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#94A3B8">REFUNDED</span><br>
+      <span style="color:#FCD34D">PENDING</span><span style="color:var(--text3)"> → </span><span style="color:#FCA5A5">FAILED</span><br>
+      <span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#93C5FD">PARTIALLY_REFUNDED</span><span style="color:var(--text3)"> → </span><span style="color:#94A3B8">REFUNDED</span><br>
+      <span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#FBB6CE">CHARGEBACK</span>
+    </div>
+  </div>
+</div>
+
+</div></main>
+
+<script>
+function tab(btn, id) {
+  const body = btn.closest('.ep-body');
+  body.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  body.querySelectorAll('.tc').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  body.querySelector('#' + id).classList.add('on');
+}
+function nav(el, id) {
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function cp(btn) {
+  const pre = btn.closest('.cb').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1600);
+  });
+}
+// Active link on scroll
+const secs = [...document.querySelectorAll('.sec[id]')];
+window.addEventListener('scroll', () => {
+  let cur = secs[0].id;
+  secs.forEach(s => { if (scrollY >= s.offsetTop - 60) cur = s.id; });
+  document.querySelectorAll('.sb-link').forEach(l => {
+    const match = l.getAttribute('onclick')?.includes(`'${cur}'`);
+    l.classList.toggle('on', !!match);
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
