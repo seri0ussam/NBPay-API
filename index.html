@@ -220,20 +220,6 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
 <span class="sh">Idempotency-Key:</span> <span class="sv">a4f2b1c8-7d3e-4a9b-b5c2-1e7f0d3a8c4b</span></pre></div>
   </div>
 
-  <table class="pt" style="margin-top:4px">
-    <tr><th>Key prefix</th><th>Environment</th><th>Description</th></tr>
-    <tr>
-      <td><code>nbpay_live_sk_</code></td>
-      <td><span style="color:var(--green);font-size:12px;font-family:var(--fm)">Production</span></td>
-      <td class="pt-desc">Real money. Use only on your server, never client-side.</td>
-    </tr>
-    <tr>
-      <td><code>nbpay_test_sk_</code></td>
-      <td><span style="color:var(--amber);font-size:12px;font-family:var(--fm)">Sandbox</span></td>
-      <td class="pt-desc">No real transactions. Safe for development and QA. Use with the sandbox base URL.</td>
-    </tr>
-  </table>
-
   <div class="note note-w">
     <span class="ni">⚠️</span>
     <span>Never expose your secret key in frontend code, public repos, or logs. If a key is compromised, rotate it immediately in the Merchant Portal. NBPay will never ask for your key over email.</span>
@@ -359,9 +345,19 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
             <td class="pt-desc">Your unique order identifier. Max 64 characters. Used to look up payments from your system.</td>
           </tr>
           <tr>
-            <td><span class="pn">return_url</span><span class="pr">required</span></td>
+            <td><span class="pn">notification_url</span><span class="pr">required</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">HTTPS URL to redirect the customer to after the payment page closes (success or failure). We append <code>?payment_id=pay_xxx&amp;status=COMPLETED</code>.</td>
+            <td class="pt-desc">HTTPS URL to recieve webhooks with payment status updates</td>
+          </tr>
+          <tr>
+            <td><span class="pn">success_url</span><span class="pr">required</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">HTTPS URL to redirect user after successfull payment</td>
+          </tr>
+          <tr>
+            <td><span class="pn">fail_url</span><span class="pr">required</span></td>
+            <td><span class="pt-type">string</span></td>
+            <td class="pt-desc">HTTPS URL to redirect user after failed payment</td>
           </tr>
           <tr>
             <td><span class="pn">description</span><span class="po">optional</span></td>
@@ -398,7 +394,9 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
   <span class="sk">"order_id"</span>:       <span class="ss">"order_abc123"</span>,
   <span class="sk">"description"</span>:    <span class="ss">"Premium subscription – 1 month"</span>,
   <span class="sk">"payment_url"</span>:    <span class="ss">"https://pay.nbpay.io/p/2xKj8mNpQr4vBcDf"</span>,
-  <span class="sk">"return_url"</span>:     <span class="ss">"https://yourstore.com/thank-you"</span>,
+  <span class="sk">"notification_url"</span>:     <span class="ss">"https://yourstore.com/webhook"</span>,
+  <span class="sk">"success_url"</span>:     <span class="ss">"https://yourstore.com/thank-you"</span>,
+  <span class="sk">"fail_url"</span>:     <span class="ss">"https://yourstore.com/sorry"</span>,
   <span class="sk">"expires_at"</span>:     <span class="ss">"2026-03-10T12:30:00Z"</span>,
   <span class="sk">"created_at"</span>:     <span class="ss">"2026-03-10T12:00:00Z"</span>,
   <span class="sk">"completed_at"</span>:   <span class="sb2">null</span>,
@@ -750,12 +748,6 @@ payment = response.json()
     <div class="ev-name">refund.failed</div>
     <div class="ev-desc">Fired when a refund could not be processed. Contact support with the refund ID.</div>
   </div>
-
-  <div class="ev">
-    <div class="ev-name">chargeback.created</div>
-    <div class="ev-desc">Fired when the cardholder's bank initiates a chargeback dispute. <strong style="color:#FCA5A5">Action required</strong> — log in to the Merchant Portal to submit evidence within the deadline shown.</div>
-  </div>
-</div>
 
 <!-- WEBHOOK VERIFY ─────────────────────────────────────── -->
 <div class="sec" id="webhook-verify">
