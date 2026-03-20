@@ -170,7 +170,7 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
 <!-- OVERVIEW ───────────────────────────────────────────── -->
 <div class="sec" id="overview">
   <div class="sec-h">NBPay API Reference</div>
-  <div class="sec-sub">Accept payments from Russian customers using local payment methods — Mir cards, Visa/Mastercard (Russian-issued), and SBP Instant Payments. Integrate once with NBPay; we handle the rest.</div>
+  <div class="sec-sub">Accept payments through Russian local payment instruments — Bank cards or Faster Payments System (FPS). Integrate once with NBPay; we handle the rest.</div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px">
@@ -203,7 +203,7 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
 
   <div class="note note-i" style="margin-top:20px">
     <span class="ni">ℹ️</span>
-    <span>All amounts are in <strong>Russian Rubles (RUB)</strong>, expressed as an integer in <strong>kopecks</strong> (1 RUB = 100 kopecks). Your settlement is paid out in your contracted foreign currency (USD, EUR, AED, etc.) on the schedule defined in your agreement.</span>
+    <span>All amounts are in <strong>Russian Rubles (RUB)</strong>, expressed as float, two characters after the separator. Your settlement is paid out in your contracted foreign currency (USD, EUR, AED, etc.) on the schedule defined in your agreement.</span>
   </div>
 </div>
 
@@ -219,6 +219,20 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
 <span class="sh">Content-Type:</span>  <span class="sv">application/json</span>
 <span class="sh">Idempotency-Key:</span> <span class="sv">a4f2b1c8-7d3e-4a9b-b5c2-1e7f0d3a8c4b</span></pre></div>
   </div>
+
+  <table class="pt" style="margin-top:4px">
+    <tr><th>Key prefix</th><th>Environment</th><th>Description</th></tr>
+    <tr>
+      <td><code>nbpay_live_sk_</code></td>
+      <td><span style="color:var(--green);font-size:12px;font-family:var(--fm)">Production</span></td>
+      <td class="pt-desc">Real money. Use only on your server, never client-side.</td>
+    </tr>
+    <tr>
+      <td><code>nbpay_test_sk_</code></td>
+      <td><span style="color:var(--amber);font-size:12px;font-family:var(--fm)">Sandbox</span></td>
+      <td class="pt-desc">No real transactions. Safe for development and QA. Use with the sandbox base URL.</td>
+    </tr>
+  </table>
 
   <div class="note note-w">
     <span class="ni">⚠️</span>
@@ -330,11 +344,6 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
         <table class="pt">
           <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
           <tr>
-            <td><span class="pn">amount</span><span class="pr">required</span></td>
-            <td><span class="pt-type">integer</span></td>
-            <td class="pt-desc">Payment amount in kopecks. 1 RUB = 100 kopecks. Minimum: <code>100</code>.</td>
-          </tr>
-          <tr>
             <td><span class="pn">currency</span><span class="pr">required</span></td>
             <td><span class="pt-type">string</span></td>
             <td class="pt-desc">Must be <code>"RUB"</code>.</td>
@@ -347,32 +356,32 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
           <tr>
             <td><span class="pn">notification_url</span><span class="pr">required</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">HTTPS URL to recieve webhooks with payment status updates</td>
+            <td class="pt-desc">HTTPS URL to recieve webhooks with payment status updates</code>.</td>
           </tr>
           <tr>
-            <td><span class="pn">success_url</span><span class="pr">required</span></td>
+            <td><span class="pn">success_url</span><span class="po">optional</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">HTTPS URL to redirect user after successfull payment</td>
+            <td class="pt-desc">HTTPS URL to redirect user after successfull payment.</td>
           </tr>
           <tr>
-            <td><span class="pn">fail_url</span><span class="pr">required</span></td>
+            <td><span class="pn">fail_url</span><span class="po">optional</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">HTTPS URL to redirect user after failed payment</td>
+            <td class="pt-desc">HTTPS URL to redirect user after failed payment.</td>
           </tr>
           <tr>
-            <td><span class="pn">description</span><span class="po">optional</span></td>
+            <td><span class="pn">payment_method</span><span class="pr">required</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">Human-readable description shown to the customer on the payment page. Max 255 characters.</td>
-          </tr>
-          <tr>
-            <td><span class="pn">payment_method</span><span class="po">optional</span></td>
-            <td><span class="pt-type">string</span></td>
-            <td class="pt-desc">Pre-select method: <code>"CARD"</code> or <code>"SBP"</code>. Omit to let the customer choose.</td>
+            <td class="pt-desc">Pre-select method: <code>"CARD"</code> or <code>"FPS"</code></td>
           </tr>
           <tr>
             <td><span class="pn">customer</span><span class="po">optional</span></td>
             <td><span class="pt-type">object</span></td>
-            <td class="pt-desc">Customer details. Fields: <code>email</code> (string) and <code>phone</code> (string, E.164 format — required for SBP).</td>
+            <td class="pt-desc">Customer details. Fields: <code>email</code> (string) and <code>phone</code> (string, E.164 format — required for FPS).</td>
+          </tr>
+          <tr>
+            <td><span class="pn">products</span><span class="pr">required</span></td>
+            <td><span class="pt-type">object</span></td>
+            <td class="pt-desc">Order details. Fields: <code>name</code> (string), <code>atricle</code> (string,), <code>quantity</code> (integer), <code>unitPrice</code> (float).</td>
           </tr>
           <tr>
             <td><span class="pn">metadata</span><span class="po">optional</span></td>
@@ -391,12 +400,15 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
   <span class="sk">"status"</span>:         <span class="ss">"PENDING"</span>,
   <span class="sk">"amount"</span>:         <span class="sn">100000</span>,
   <span class="sk">"currency"</span>:       <span class="ss">"RUB"</span>,
+  <span class="sk">"fee_amount"</span>:      <span class="sn">100000</span>,
+  <span class="sk">"currency"</span>:       <span class="ss">"RUB"</span>,
   <span class="sk">"order_id"</span>:       <span class="ss">"order_abc123"</span>,
-  <span class="sk">"description"</span>:    <span class="ss">"Premium subscription – 1 month"</span>,
   <span class="sk">"payment_url"</span>:    <span class="ss">"https://pay.nbpay.io/p/2xKj8mNpQr4vBcDf"</span>,
   <span class="sk">"notification_url"</span>:     <span class="ss">"https://yourstore.com/webhook"</span>,
   <span class="sk">"success_url"</span>:     <span class="ss">"https://yourstore.com/thank-you"</span>,
   <span class="sk">"fail_url"</span>:     <span class="ss">"https://yourstore.com/sorry"</span>,
+  <span class="sk">"payment_method"</span>:     <span class="ss">"CARD"</span>,
+  <span class="sk">"products"</span>:       { <span class="sk">"name"</span>: <span class="ss">"Product Name"</span>, <span class="sk">"article"</span>: <span class="ss">"Product Article"</span>, <span class="sk">"quantity"</span>: <span class="sn">1</span>, <span class="sk">"price"</span>: <span class="sn">100000</span> },
   <span class="sk">"expires_at"</span>:     <span class="ss">"2026-03-10T12:30:00Z"</span>,
   <span class="sk">"created_at"</span>:     <span class="ss">"2026-03-10T12:00:00Z"</span>,
   <span class="sk">"completed_at"</span>:   <span class="sb2">null</span>,
@@ -408,89 +420,15 @@ code{font-family:var(--fm);font-size:11.5px;background:rgba(255,255,255,.06);
           <span class="ni">ℹ️</span>
           <span>Redirect your customer to <code>payment_url</code> immediately. The URL is valid for <strong>30 minutes</strong>. After expiry, create a new payment.</span>
         </div>
-      </div>
-
-      <div class="tc" id="cp-curl">
-        <div class="cb">
-          <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
-          <div class="cb-body"><pre>curl -X POST https://api.nbpay.io/v1/payments \
-  -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span> \
-  -H <span class="ss">"Content-Type: application/json"</span> \
-  -H <span class="ss">"Idempotency-Key: $(uuidgen)"</span> \
-  -d <span class="ss">'{
-    "amount":       100000,
-    "currency":     "RUB",
-    "order_id":     "order_abc123",
-    "return_url":   "https://yourstore.com/thank-you",
-    "description":  "Premium subscription – 1 month",
-    "customer":     { "email": "user@example.com" },
-    "metadata":     { "user_id": "usr_9912" }
-  }'</span></pre></div>
-        </div>
-      </div>
-
-      <div class="tc" id="cp-node">
-        <div class="cb">
-          <div class="cb-head"><span class="cb-lang">Node.js (fetch — Node 18+)</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
-          <div class="cb-body"><pre>import crypto from <span class="ss">'crypto'</span>;
-
-const payment = await fetch(<span class="ss">'https://api.nbpay.io/v1/payments'</span>, {
-  method: <span class="ss">'POST'</span>,
-  headers: {
-    <span class="ss">'Authorization'</span>:  <span class="ss">`Bearer ${process.env.NBPAY_SECRET_KEY}`</span>,
-    <span class="ss">'Content-Type'</span>:   <span class="ss">'application/json'</span>,
-    <span class="ss">'Idempotency-Key'</span>: crypto.randomUUID(),
-  },
-  body: JSON.stringify({
-    amount:      <span class="sn">100000</span>,   <span class="sc">// 1 000.00 RUB</span>
-    currency:    <span class="ss">'RUB'</span>,
-    order_id:    <span class="ss">'order_abc123'</span>,
-    return_url:  <span class="ss">'https://yourstore.com/thank-you'</span>,
-    description: <span class="ss">'Premium subscription – 1 month'</span>,
-    customer:    { email: <span class="ss">'user@example.com'</span> },
-    metadata:    { user_id: <span class="ss">'usr_9912'</span> },
-  }),
-}).then(r => r.json());
-
-<span class="sc">// Redirect your customer:</span>
-res.redirect(payment.payment_url);</pre></div>
-        </div>
-      </div>
-
-      <div class="tc" id="cp-py">
-        <div class="cb">
-          <div class="cb-head"><span class="cb-lang">Python (requests)</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
-          <div class="cb-body"><pre>import os, uuid, requests
-
-response = requests.post(
-    <span class="ss">"https://api.nbpay.io/v1/payments"</span>,
-    headers={
-        <span class="ss">"Authorization"</span>:  f<span class="ss">"Bearer {os.environ['NBPAY_SECRET_KEY']}"</span>,
-        <span class="ss">"Idempotency-Key"</span>: str(uuid.uuid4()),
-    },
-    json={
-        <span class="ss">"amount"</span>:      <span class="sn">100000</span>,  <span class="sc"># 1 000.00 RUB</span>
-        <span class="ss">"currency"</span>:    <span class="ss">"RUB"</span>,
-        <span class="ss">"order_id"</span>:    <span class="ss">"order_abc123"</span>,
-        <span class="ss">"return_url"</span>:  <span class="ss">"https://yourstore.com/thank-you"</span>,
-        <span class="ss">"description"</span>: <span class="ss">"Premium subscription – 1 month"</span>,
-        <span class="ss">"customer"</span>:    {<span class="ss">"email"</span>: <span class="ss">"user@example.com"</span>},
-        <span class="ss">"metadata"</span>:    {<span class="ss">"user_id"</span>: <span class="ss">"usr_9912"</span>},
-    }
-)
-payment = response.json()
-<span class="sc"># payment["payment_url"] → redirect customer here</span></pre></div>
-        </div>
-      </div>
 
     </div>
   </div>
 </div>
 
-<!-- GET PAYMENT ─────────────────────────────────────────── -->
+<!-- ──────────── GET PAYMENT ──────────── -->
 <div class="sec" id="get-payment">
   <div class="sec-h">Get Payment</div>
-  <div class="sec-sub">Fetch the current state of a payment. Use this when the customer returns from the payment page, or to poll for status during processing.</div>
+  <div class="sec-sub">Returns the full current state of a payment, including card details, fee, exchange rate, and refund information.</div>
 
   <div class="ep">
     <div class="ep-head">
@@ -500,36 +438,85 @@ payment = response.json()
     </div>
     <div class="ep-body">
       <div class="tabs">
-        <button class="tab on" onclick="tab(this,'gp-res')">200 Response</button>
+        <button class="tab on" onclick="tab(this,'gp-res')">Response</button>
         <button class="tab" onclick="tab(this,'gp-curl')">cURL</button>
       </div>
+
       <div class="tc on" id="gp-res">
         <div class="cb">
-          <div class="cb-head"><span class="cb-lang">JSON · 200 OK</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-head"><span class="cb-lang">JSON · 200 OK — COMPLETED payment with partial refund</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
           <div class="cb-body"><pre>{
-  <span class="sk">"id"</span>:               <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
-  <span class="sk">"object"</span>:           <span class="ss">"payment"</span>,
-  <span class="sk">"status"</span>:           <span class="ss">"COMPLETED"</span>,
-  <span class="sk">"amount"</span>:           <span class="sn">100000</span>,
-  <span class="sk">"currency"</span>:         <span class="ss">"RUB"</span>,
-  <span class="sk">"order_id"</span>:         <span class="ss">"order_abc123"</span>,
-  <span class="sk">"payment_method"</span>:   <span class="ss">"CARD"</span>,
+  <span class="sk">"id"</span>:                   <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"object"</span>:               <span class="ss">"payment"</span>,
+  <span class="sk">"status"</span>:               <span class="ss">"PARTIALLY_REFUNDED"</span>,
+  <span class="sk">"amount"</span>:               <span class="sn">1500.00</span>,
+  <span class="sk">"currency"</span>:             <span class="ss">"RUB"</span>,
+  <span class="sk">"order_id"</span>:             <span class="ss">"order_abc123"</span>,
+  <span class="sk">"payment_method"</span>:       <span class="ss">"BANK_CARD"</span>,
+
+  <span class="sc">// ── Authorization ──────────────────────────────────────────</span>
+  <span class="sk">"authorization_status"</span>: <span class="ss">"AUTHORIZED"</span>,  <span class="sc">// AUTHORIZED | DECLINED | PENDING</span>
+  <span class="sk">"authorized_at"</span>:        <span class="ss">"2026-03-10T12:04:22Z"</span>,
+
+  <span class="sc">// ── Card details (only for BANK_CARD payments) ─────────────</span>
   <span class="sk">"card"</span>: {
-    <span class="sk">"brand"</span>:           <span class="ss">"MIR"</span>,
-    <span class="sk">"last4"</span>:           <span class="ss">"7742"</span>
+    <span class="sk">"scheme"</span>:     <span class="ss">"MIR"</span>,       <span class="sc">// MIR | VISA | MASTERCARD</span>
+    <span class="sk">"type"</span>:       <span class="ss">"DEBIT"</span>,     <span class="sc">// DEBIT | CREDIT</span>
+    <span class="sk">"last4"</span>:      <span class="ss">"7742"</span>,      <span class="sc">// last 4 digits of the card PAN</span>
+    <span class="sk">"issuer_bank"</span>:<span class="ss">"Sberbank"</span>   <span class="sc">// name of the card-issuing bank</span>
   },
-  <span class="sk">"refunded_amount"</span>:  <span class="sn">0</span>,
-  <span class="sk">"payment_url"</span>:      <span class="sb2">null</span>,
-  <span class="sk">"created_at"</span>:       <span class="ss">"2026-03-10T12:00:00Z"</span>,
-  <span class="sk">"completed_at"</span>:     <span class="ss">"2026-03-10T12:04:22Z"</span>,
-  <span class="sk">"metadata"</span>:         { <span class="sk">"user_id"</span>: <span class="ss">"usr_9912"</span> }
+
+  <span class="sc">// ── Commission charged by NBPay ────────────────────────────</span>
+  <span class="sk">"fee"</span>: {
+    <span class="sk">"amount"</span>:   <span class="sn">45.00</span>,
+    <span class="sk">"currency"</span>: <span class="ss">"RUB"</span>
+  },
+
+  <span class="sc">// ── FX rate used to credit your virtual account ────────────</span>
+  <span class="sc">// Provided by NBPay settlement engine, not by the acquirer.</span>
+  <span class="sk">"exchange_rate"</span>:        <span class="sn">88.42</span>,   <span class="sc">// RUB per 1 unit of merchant_currency</span>
+  <span class="sk">"merchant_currency"</span>:    <span class="ss">"USD"</span>,   <span class="sc">// your contracted settlement currency</span>
+
+  <span class="sc">// ── Refund information ─────────────────────────────────────</span>
+  <span class="sk">"refunded_amount"</span>:      <span class="sn">500.00</span>,   <span class="sc">// total refunded so far (RUB)</span>
+  <span class="sk">"refundable_amount"</span>:    <span class="sn">1000.00</span>, <span class="sc">// remaining amount available for refund</span>
+  <span class="sk">"refund_ids"</span>:           [<span class="ss">"ref_5mTp3nRqYs8wCxEg"</span>],
+
+  <span class="sc">// ── Products ───────────────────────────────────────────────</span>
+  <span class="sk">"products"</span>: [
+    {
+      <span class="sk">"name"</span>:        <span class="ss">"Laptop Asus X554L"</span>,
+      <span class="sk">"sku"</span>:         <span class="ss">"SKU-9864645"</span>,
+      <span class="sk">"unit_price"</span>:  <span class="sn">1250.00</span>,
+      <span class="sk">"quantity"</span>:    <span class="sn">1</span>,
+      <span class="sk">"total_price"</span>: <span class="sn">1250.00</span>   <span class="sc">// unit_price × quantity, calculated by NBPay</span>
+    },
+    {
+      <span class="sk">"name"</span>:        <span class="ss">"Mouse Logitech M100"</span>,
+      <span class="sk">"sku"</span>:         <span class="ss">"SKU-3452678"</span>,
+      <span class="sk">"unit_price"</span>:  <span class="sn">250.00</span>,
+      <span class="sk">"quantity"</span>:    <span class="sn">1</span>,
+      <span class="sk">"total_price"</span>: <span class="sn">250.00</span>
+    }
+  ],
+
+  <span class="sk">"customer"</span>:             { <span class="sk">"email"</span>: <span class="ss">"buyer@example.com"</span>, <span class="sk">"phone"</span>: <span class="ss">"+79161234567"</span> },
+  <span class="sk">"metadata"</span>:             { <span class="sk">"user_id"</span>: <span class="ss">"usr_9912"</span> },
+  <span class="sk">"notification_url"</span>:     <span class="ss">"https://yourstore.com/webhooks/nbpay"</span>,
+  <span class="sk">"success_url"</span>:          <span class="ss">"https://yourstore.com/thank-you"</span>,
+  <span class="sk">"fail_url"</span>:             <span class="ss">"https://yourstore.com/payment-failed"</span>,
+  <span class="sk">"payment_url"</span>:          <span class="sb2">null</span>,   <span class="sc">// null once status is no longer PENDING</span>
+  <span class="sk">"expires_at"</span>:           <span class="sb2">null</span>,
+  <span class="sk">"created_at"</span>:           <span class="ss">"2026-03-10T12:00:00Z"</span>,
+  <span class="sk">"completed_at"</span>:         <span class="ss">"2026-03-10T12:04:22Z"</span>
 }</pre></div>
         </div>
         <div class="note note-i">
           <span class="ni">ℹ️</span>
-          <span>Always use webhooks as the primary mechanism for status updates. Poll <code>GET /payments/{id}</code> only as a fallback when a webhook is not received within your expected timeframe.</span>
+          <span>Use webhooks as your primary mechanism for status updates. Poll <code>GET /payments/{id}</code> only as a fallback when a webhook is not received within your expected timeframe.</span>
         </div>
       </div>
+
       <div class="tc" id="gp-curl">
         <div class="cb">
           <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
@@ -537,6 +524,7 @@ payment = response.json()
   -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span></pre></div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -596,10 +584,10 @@ payment = response.json()
 
 <div class="divider"></div>
 
-<!-- CREATE REFUND ───────────────────────────────────────── -->
+<!-- ──────────── CREATE REFUND ──────────── -->
 <div class="sec" id="create-refund">
   <div class="sec-h">Create Refund</div>
-  <div class="sec-sub">Issue a full or partial refund against a completed payment. Funds are returned to the customer's original payment method within 3–5 business days.</div>
+  <div class="sec-sub">Issue a <strong>full</strong> or <strong>partial</strong> refund against a completed payment. Funds are returned to the customer's original payment instrument within 1–3 business days.</div>
 
   <div class="ep">
     <div class="ep-head">
@@ -610,61 +598,77 @@ payment = response.json()
     <div class="ep-body">
       <div class="tabs">
         <button class="tab on" onclick="tab(this,'cr-req')">Request body</button>
-        <button class="tab" onclick="tab(this,'cr-res')">200 Response</button>
+        <button class="tab" onclick="tab(this,'cr-res')">Response</button>
         <button class="tab" onclick="tab(this,'cr-curl')">cURL</button>
       </div>
+
       <div class="tc on" id="cr-req">
         <table class="pt">
           <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
           <tr>
             <td><span class="pn">amount</span><span class="po">optional</span></td>
-            <td><span class="pt-type">integer</span></td>
-            <td class="pt-desc">Amount to refund in kopecks. Omit to refund the full remaining amount. Must not exceed the original amount minus prior refunds.</td>
+            <td><span class="pt-type">number</span></td>
+            <td class="pt-desc">
+              Amount to refund in RUB, decimal.<br><br>
+              <strong>Full refund:</strong> omit this field — NBPay automatically refunds the entire <code>refundable_amount</code>.<br>
+              <strong>Partial refund:</strong> specify an amount less than <code>refundable_amount</code>. Multiple partial refunds are allowed until the full amount is exhausted.
+            </td>
           </tr>
           <tr>
-            <td><span class="pn">reason</span><span class="po">optional</span></td>
+            <td><span class="pn">comment</span><span class="po">optional</span></td>
             <td><span class="pt-type">string</span></td>
-            <td class="pt-desc"><code>"duplicate"</code> · <code>"fraudulent"</code> · <code>"customer_request"</code> · <code>"other"</code></td>
+            <td class="pt-desc">Any comment about the refund. Stored internally; not shown to the customer.</td>
           </tr>
           <tr>
             <td><span class="pn">metadata</span><span class="po">optional</span></td>
             <td><span class="pt-type">object</span></td>
-            <td class="pt-desc">Your key-value pairs for this refund.</td>
+            <td class="pt-desc">Key-value pairs specific to this refund operation.</td>
           </tr>
         </table>
         <div class="note note-w">
           <span class="ni">⚠️</span>
-          <span>Refunds are only possible for payments with status <code>COMPLETED</code> or <code>PARTIALLY_REFUNDED</code>. If a chargeback is open on the payment, refunds are blocked until the dispute resolves.</span>
+          <span>Refunds are only possible for payments with status <code>COMPLETED</code> or <code>PARTIALLY_REFUNDED</code>. The <code>amount</code> must not exceed <code>refundable_amount</code>.</span>
         </div>
       </div>
+
       <div class="tc" id="cr-res">
         <div class="cb">
-          <div class="cb-head"><span class="cb-lang">JSON · 200 OK</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-head"><span class="cb-lang">JSON · 201 Created — partial refund</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
           <div class="cb-body"><pre>{
-  <span class="sk">"id"</span>:          <span class="ss">"ref_5mTp3nRqYs8wCxEg"</span>,
-  <span class="sk">"object"</span>:      <span class="ss">"refund"</span>,
-  <span class="sk">"payment_id"</span>:  <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
-  <span class="sk">"status"</span>:      <span class="ss">"PENDING"</span>,
-  <span class="sk">"amount"</span>:      <span class="sn">50000</span>,
-  <span class="sk">"currency"</span>:    <span class="ss">"RUB"</span>,
-  <span class="sk">"reason"</span>:      <span class="ss">"customer_request"</span>,
-  <span class="sk">"created_at"</span>:  <span class="ss">"2026-03-10T15:22:00Z"</span>,
-  <span class="sk">"completed_at"</span>: <span class="sb2">null</span>,
-  <span class="sk">"metadata"</span>:    {}
+  <span class="sk">"id"</span>:            <span class="ss">"ref_5mTp3nRqYs8wCxEg"</span>,
+  <span class="sk">"object"</span>:        <span class="ss">"refund"</span>,
+  <span class="sk">"payment_id"</span>:    <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+  <span class="sk">"status"</span>:        <span class="ss">"PENDING"</span>,   <span class="sc">// PENDING → COMPLETED | FAILED</span>
+  <span class="sk">"amount"</span>:        <span class="sn">500.00</span>,
+  <span class="sk">"currency"</span>:      <span class="ss">"RUB"</span>,
+  <span class="sk">"comment"</span>:        <span class="ss">"customer_request"</span>,
+  <span class="sk">"created_at"</span>:    <span class="ss">"2026-03-10T15:22:00Z"</span>,
+  <span class="sk">"completed_at"</span>:  <span class="sb2">null</span>,
+  <span class="sk">"metadata"</span>:      {}
 }</pre></div>
         </div>
       </div>
+
       <div class="tc" id="cr-curl">
         <div class="cb">
-          <div class="cb-head"><span class="cb-lang">cURL</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+          <div class="cb-head"><span class="cb-lang">cURL — partial refund of ₽ 500</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
           <div class="cb-body"><pre>curl -X POST \
   https://api.nbpay.io/v1/payments/pay_2xKj8mNpQr4vBcDf/refunds \
   -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span> \
   -H <span class="ss">"Content-Type: application/json"</span> \
   -H <span class="ss">"Idempotency-Key: $(uuidgen)"</span> \
-  -d <span class="ss">'{ "amount": 50000, "reason": "customer_request" }'</span></pre></div>
+  -d <span class="ss">'{ "amount": 500.00, "comment": "customer_request" }'</span>
+
+<span class="sc">## Full refund — omit amount entirely</span>
+curl -X POST \
+  https://api.nbpay.io/v1/payments/pay_2xKj8mNpQr4vBcDf/refunds \
+  -H <span class="ss">"Authorization: Bearer nbpay_live_sk_xxx"</span> \
+  -H <span class="ss">"Content-Type: application/json"</span> \
+  -H <span class="ss">"Idempotency-Key: $(uuidgen)"</span> \
+  -d <span class="ss">'{ "comment": "customer_request" }'</span></pre></div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -687,74 +691,138 @@ payment = response.json()
 
 <div class="divider"></div>
 
-<!-- WEBHOOK EVENTS ─────────────────────────────────────── -->
+<!-- ──────────── WEBHOOK EVENTS ──────────── -->
 <div class="sec" id="webhook-events">
   <div class="sec-h">Webhook Event Types</div>
-  <div class="sec-sub">NBPay sends a signed HTTP POST to your configured endpoint for every payment event. Configure your URL in <strong>Merchant Portal → Settings → Webhooks</strong>.</div>
+  <div class="sec-sub">NBPay sends a signed HTTP <code>POST</code> to the <code>notification_url</code> specified on each individual payment for every payment event. There is no global webhook configuration — each payment carries its own delivery endpoint.</div>
 
   <div class="note note-w">
     <span class="ni">⚠️</span>
-    <span>Your endpoint must respond with any <code>2xx</code> status within <strong>10 seconds</strong>. If it doesn't, NBPay retries 5 times with exponential backoff: 10s · 60s · 5m · 30m · 2h. All delivery attempts are logged in your portal.</span>
+    <span>Your endpoint must respond with a <code>2xx</code> status within <strong>10 seconds</strong>. On failure, NBPay retries 5 times with exponential backoff: 10s → 60s → 5m → 30m → 2h. All delivery attempts are logged in your portal.</span>
   </div>
-
   <div class="note note-i">
     <span class="ni">ℹ️</span>
-    <span>Webhook delivery is at-least-once. Your handler must be <strong>idempotent</strong> — use <code>data.id</code> as a deduplication key in your database before acting on any event.</span>
+    <span>Webhook delivery is <strong>at-least-once</strong>. Your handler must be idempotent — use <code>data.id</code> as the deduplication key in your database before processing any event.</span>
   </div>
 
+  <!-- payment.completed -->
   <div class="ev">
     <div class="ev-name">payment.completed</div>
-    <div class="ev-desc">Fired when a payment is successfully authorized. This is your signal to fulfil the order.</div>
+    <div class="ev-desc">Fired when a payment is successfully authorised and funds are confirmed. This is your signal to fulfil the order. The full Payment object is embedded in <code>data</code>.</div>
     <div class="cb">
       <div class="cb-head"><span class="cb-lang">Payload</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
       <div class="cb-body"><pre>{
   <span class="sk">"event"</span>:      <span class="ss">"payment.completed"</span>,
   <span class="sk">"created_at"</span>: <span class="ss">"2026-03-10T12:04:22Z"</span>,
   <span class="sk">"data"</span>: {
-    <span class="sk">"id"</span>:       <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
-    <span class="sk">"status"</span>:   <span class="ss">"COMPLETED"</span>,
-    <span class="sk">"amount"</span>:   <span class="sn">100000</span>,
-    <span class="sk">"order_id"</span>: <span class="ss">"order_abc123"</span>,
-    <span class="sc">// ... full Payment object</span>
+    <span class="sk">"id"</span>:                   <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+    <span class="sk">"status"</span>:               <span class="ss">"COMPLETED"</span>,
+    <span class="sk">"amount"</span>:               <span class="sn">1500.00</span>,
+    <span class="sk">"currency"</span>:             <span class="ss">"RUB"</span>,
+    <span class="sk">"order_id"</span>:             <span class="ss">"order_abc123"</span>,
+    <span class="sk">"payment_method"</span>:       <span class="ss">"BANK_CARD"</span>,
+    <span class="sk">"authorization_status"</span>: <span class="ss">"AUTHORIZED"</span>,
+    <span class="sk">"authorized_at"</span>:        <span class="ss">"2026-03-10T12:04:22Z"</span>,
+    <span class="sk">"card"</span>: {
+      <span class="sk">"scheme"</span>:      <span class="ss">"MIR"</span>,
+      <span class="sk">"type"</span>:        <span class="ss">"DEBIT"</span>,
+      <span class="sk">"last4"</span>:       <span class="ss">"7742"</span>,
+      <span class="sk">"issuer_bank"</span>: <span class="ss">"Sberbank"</span>
+    },
+    <span class="sk">"fee"</span>:                  { <span class="sk">"amount"</span>: <span class="sn">45.00</span>, <span class="sk">"currency"</span>: <span class="ss">"RUB"</span> },
+    <span class="sk">"exchange_rate"</span>:        <span class="sn">88.42</span>,
+    <span class="sk">"merchant_currency"</span>:    <span class="ss">"USD"</span>,
+    <span class="sk">"refunded_amount"</span>:      <span class="sn">0.00</span>,
+    <span class="sk">"refundable_amount"</span>:    <span class="sn">1500.00</span>,
+    <span class="sk">"refund_ids"</span>:           [],
+    <span class="sk">"products"</span>: [
+      { <span class="sk">"name"</span>: <span class="ss">"Laptop Asus X554L"</span>, <span class="sk">"sku"</span>: <span class="ss">"SKU-9864645"</span>,
+        <span class="sk">"unit_price"</span>: <span class="sn">1250.00</span>, <span class="sk">"quantity"</span>: <span class="sn">1</span>, <span class="sk">"total_price"</span>: <span class="sn">1250.00</span> },
+      { <span class="sk">"name"</span>: <span class="ss">"Mouse Logitech M100"</span>, <span class="sk">"sku"</span>: <span class="ss">"SKU-3452678"</span>,
+        <span class="sk">"unit_price"</span>: <span class="sn">250.00</span>, <span class="sk">"quantity"</span>: <span class="sn">1</span>, <span class="sk">"total_price"</span>: <span class="sn">250.00</span> }
+    ],
+    <span class="sk">"customer"</span>:             { <span class="sk">"email"</span>: <span class="ss">"buyer@example.com"</span>, <span class="sk">"phone"</span>: <span class="ss">"+79161234567"</span> },
+    <span class="sk">"metadata"</span>:             { <span class="sk">"user_id"</span>: <span class="ss">"usr_9912"</span> },
+    <span class="sk">"created_at"</span>:           <span class="ss">"2026-03-10T12:00:00Z"</span>,
+    <span class="sk">"completed_at"</span>:         <span class="ss">"2026-03-10T12:04:22Z"</span>
   }
 }</pre></div>
     </div>
   </div>
 
+  <!-- payment.failed -->
   <div class="ev">
     <div class="ev-name">payment.failed</div>
-    <div class="ev-desc">Fired when a payment attempt is declined — bank rejection, 3DS failure, or customer timeout. A new payment must be created to retry.</div>
+    <div class="ev-desc">Fired when a payment is declined, fails 3DS, or expires without completion. No funds were moved. The customer can retry — create a new payment.</div>
     <div class="cb">
-      <div class="cb-head"><span class="cb-lang">Payload</span></div>
+      <div class="cb-head"><span class="cb-lang">Payload</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
       <div class="cb-body"><pre>{
-  <span class="sk">"event"</span>: <span class="ss">"payment.failed"</span>,
+  <span class="sk">"event"</span>:      <span class="ss">"payment.failed"</span>,
+  <span class="sk">"created_at"</span>: <span class="ss">"2026-03-10T12:10:00Z"</span>,
   <span class="sk">"data"</span>: {
-    <span class="sk">"id"</span>:             <span class="ss">"pay_3yLk9nOpSs5wDzHg"</span>,
-    <span class="sk">"status"</span>:         <span class="ss">"FAILED"</span>,
-    <span class="sk">"failure_reason"</span>: <span class="ss">"INSUFFICIENT_FUNDS"</span>,
-    <span class="sc">// possible values: INSUFFICIENT_FUNDS | 3DS_FAILED |
-    //  CARD_BLOCKED | EXPIRED | DECLINED | TIMEOUT</span>
+    <span class="sk">"id"</span>:                   <span class="ss">"pay_9nLpKx7mRs2qWjTy"</span>,
+    <span class="sk">"status"</span>:               <span class="ss">"FAILED"</span>,
+    <span class="sk">"amount"</span>:               <span class="sn">1500.00</span>,
+    <span class="sk">"currency"</span>:             <span class="ss">"RUB"</span>,
+    <span class="sk">"order_id"</span>:             <span class="ss">"order_abc124"</span>,
+    <span class="sk">"payment_method"</span>:       <span class="ss">"FPS"</span>,
+    <span class="sk">"authorization_status"</span>: <span class="ss">"DECLINED"</span>,
+    <span class="sk">"failure_reason"</span>:       <span class="ss">"BANK_DECLINED"</span>,
+    <span class="sk">"card"</span>:                 <span class="sb2">null</span>,
+    <span class="sk">"fee"</span>:                  <span class="sb2">null</span>,
+    <span class="sk">"exchange_rate"</span>:        <span class="sb2">null</span>,
+    <span class="sk">"products"</span>: [
+      { <span class="sk">"name"</span>: <span class="ss">"Laptop Asus X554L"</span>, <span class="sk">"sku"</span>: <span class="ss">"SKU-9864645"</span>,
+        <span class="sk">"unit_price"</span>: <span class="sn">1250.00</span>, <span class="sk">"quantity"</span>: <span class="sn">1</span>, <span class="sk">"total_price"</span>: <span class="sn">1250.00</span> }
+    ],
+    <span class="sk">"customer"</span>:             { <span class="sk">"email"</span>: <span class="ss">"buyer@example.com"</span> },
+    <span class="sk">"metadata"</span>:             {},
+    <span class="sk">"created_at"</span>:           <span class="ss">"2026-03-10T12:05:00Z"</span>,
+    <span class="sk">"completed_at"</span>:         <span class="ss">"2026-03-10T12:10:00Z"</span>
   }
 }</pre></div>
     </div>
   </div>
 
+  <!-- refund.completed -->
   <div class="ev">
     <div class="ev-name">refund.completed</div>
-    <div class="ev-desc">Fired when a refund has been successfully processed and funds returned to the customer.</div>
+    <div class="ev-desc">Fired when a refund (full or partial) is successfully processed and funds are returned to the customer. Includes the updated <code>refundable_amount</code> remaining on the payment.</div>
+    <div class="cb">
+      <div class="cb-head"><span class="cb-lang">Payload — partial refund</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
+      <div class="cb-body"><pre>{
+  <span class="sk">"event"</span>:      <span class="ss">"refund.completed"</span>,
+  <span class="sk">"created_at"</span>: <span class="ss">"2026-03-10T15:24:00Z"</span>,
+  <span class="sk">"data"</span>: {
+    <span class="sk">"id"</span>:                    <span class="ss">"ref_5mTp3nRqYs8wCxEg"</span>,
+    <span class="sk">"payment_id"</span>:            <span class="ss">"pay_2xKj8mNpQr4vBcDf"</span>,
+    <span class="sk">"status"</span>:                <span class="ss">"COMPLETED"</span>,
+    <span class="sk">"amount"</span>:                <span class="sn">500.00</span>,
+    <span class="sk">"currency"</span>:              <span class="ss">"RUB"</span>,
+    <span class="sk">"comment"</span>:                <span class="ss">"customer_request"</span>,
+    <span class="sk">"payment_status_after"</span>:  <span class="ss">"PARTIALLY_REFUNDED"</span>,
+    <span class="sk">"refundable_remaining"</span>:  <span class="sn">1000.00</span>,  <span class="sc">// remaining balance after this refund</span>
+    <span class="sk">"created_at"</span>:            <span class="ss">"2026-03-10T15:22:00Z"</span>,
+    <span class="sk">"completed_at"</span>:          <span class="ss">"2026-03-10T15:24:00Z"</span>
+  }
+}</pre></div>
+    </div>
   </div>
 
+  <!-- refund.failed -->
   <div class="ev">
     <div class="ev-name">refund.failed</div>
-    <div class="ev-desc">Fired when a refund could not be processed. Contact support with the refund ID.</div>
+    <div class="ev-desc">Fired when a refund could not be processed. The payment's <code>refundable_amount</code> is unchanged. Contact support with the refund ID if this occurs.</div>
   </div>
 
-<!-- WEBHOOK VERIFY ─────────────────────────────────────── -->
+</div>
+
+<!-- ──────────── WEBHOOK VERIFY ──────────── -->
 <div class="sec" id="webhook-verify">
   <div class="sec-h">Signature Verification</div>
-  <div class="sec-sub">Every webhook request includes an <code>X-NBPay-Signature</code> header. Always verify this signature before processing the event.</div>
+  <div class="sec-sub">Every webhook request carries an <code>X-NBPay-Signature</code> header. Always verify this signature before processing any event.</div>
 
-  <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:14px">The signature is <code>HMAC-SHA256</code> of the raw request body bytes, keyed with your webhook secret (find it in <strong>Merchant Portal → Settings → Webhooks</strong>).</p>
+  <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:14px">The signature is <code>HMAC-SHA256</code> of the raw request body bytes, keyed with your webhook secret. The secret is delivered in the first webhook sent to each <code>notification_url</code> and remains stable for all future deliveries to that URL.</p>
 
   <div class="tabs">
     <button class="tab on" onclick="tab(this,'wv-node')">Node.js</button>
@@ -770,23 +838,20 @@ payment = response.json()
 function verifySignature(rawBody, signature, secret) {
   const expected = crypto
     .createHmac(<span class="ss">'sha256'</span>, secret)
-    .update(rawBody)          <span class="sc">// rawBody must be Buffer, NOT parsed JSON</span>
+    .update(rawBody)    <span class="sc">// rawBody must be a Buffer — NOT a parsed JSON object</span>
     .digest(<span class="ss">'hex'</span>);
-  <span class="sc">// Use timingSafeEqual to prevent timing attacks</span>
+  <span class="sc">// timingSafeEqual prevents timing-attack leakage</span>
   return crypto.timingSafeEqual(
     Buffer.from(expected, <span class="ss">'utf8'</span>),
     Buffer.from(signature, <span class="ss">'utf8'</span>)
   );
 }
 
-<span class="sc">// Express: receive raw body</span>
 app.post(<span class="ss">'/webhook'</span>, express.raw({ type: <span class="ss">'application/json'</span> }), (req, res) => {
   const sig = req.headers[<span class="ss">'x-nbpay-signature'</span>];
-
   if (!verifySignature(req.body, sig, process.env.NBPAY_WEBHOOK_SECRET)) {
     return res.status(<span class="sn">401</span>).send(<span class="ss">'Invalid signature'</span>);
   }
-
   const event = JSON.parse(req.body);
   switch (event.event) {
     case <span class="ss">'payment.completed'</span>: await fulfil(event.data); break;
@@ -803,22 +868,15 @@ app.post(<span class="ss">'/webhook'</span>, express.raw({ type: <span class="ss
       <div class="cb-body"><pre>import os, hmac, hashlib
 from flask import Flask, request, abort
 
-app = Flask(__name__)
-
 def verify_signature(raw_body: bytes, signature: str, secret: str) -> bool:
-    expected = hmac.new(
-        secret.encode(), raw_body, hashlib.sha256
-    ).hexdigest()
+    expected = hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, signature)
 
 @app.route(<span class="ss">"/webhook"</span>, methods=[<span class="ss">"POST"</span>])
 def webhook():
     sig = request.headers.get(<span class="ss">"X-NBPay-Signature"</span>, <span class="ss">""</span>)
-    if not verify_signature(
-        request.get_data(), sig, os.environ[<span class="ss">"NBPAY_WEBHOOK_SECRET"</span>]
-    ):
+    if not verify_signature(request.get_data(), sig, os.environ[<span class="ss">"NBPAY_WEBHOOK_SECRET"</span>]):
         abort(<span class="sn">401</span>)
-
     event = request.get_json()
     if event[<span class="ss">"event"</span>] == <span class="ss">"payment.completed"</span>:
         fulfil(event[<span class="ss">"data"</span>])
@@ -829,13 +887,11 @@ def webhook():
   <div class="tc" id="wv-php">
     <div class="cb">
       <div class="cb-head"><span class="cb-lang">PHP</span><button class="cb-copy" onclick="cp(this)">Copy</button></div>
-      <div class="cb-body"><pre>$rawBody  = file_get_contents(<span class="ss">'php://input'</span>);
-$sig      = $_SERVER[<span class="ss">'HTTP_X_NBPAY_SIGNATURE'</span>] ?? <span class="ss">''</span>;
-$secret   = getenv(<span class="ss">'NBPAY_WEBHOOK_SECRET'</span>);
+      <div class="cb-body"><pre>$rawBody = file_get_contents(<span class="ss">'php://input'</span>);
+$sig     = $_SERVER[<span class="ss">'HTTP_X_NBPAY_SIGNATURE'</span>] ?? <span class="ss">''</span>;
+$secret  = getenv(<span class="ss">'NBPAY_WEBHOOK_SECRET'</span>);
 
-$expected = hash_hmac(<span class="ss">'sha256'</span>, $rawBody, $secret);
-
-if (!hash_equals($expected, $sig)) {
+if (!hash_equals(hash_hmac(<span class="ss">'sha256'</span>, $rawBody, $secret), $sig)) {
     http_response_code(<span class="sn">401</span>);
     exit(<span class="ss">'Invalid signature'</span>);
 }
@@ -850,46 +906,92 @@ http_response_code(<span class="sn">200</span>);</pre></div>
 
   <div class="note note-w" style="margin-top:14px">
     <span class="ni">⚠️</span>
-    <span>Always use a <strong>timing-safe comparison</strong> (<code>timingSafeEqual</code> / <code>hmac.compare_digest</code> / <code>hash_equals</code>). Regular string comparison is vulnerable to timing attacks and must not be used for signature verification.</span>
+    <span>Always use a <strong>timing-safe comparison</strong> (<code>timingSafeEqual</code> / <code>compare_digest</code> / <code>hash_equals</code>). Standard string equality is vulnerable to timing attacks and must not be used for signature verification.</span>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<!-- PAYMENT OBJECT ─────────────────────────────────────── -->
+<!-- ──────────── PAYMENT OBJECT ──────────── -->
 <div class="sec" id="payment-object">
   <div class="sec-h">Payment Object</div>
-  <div class="sec-sub">The complete Payment object is returned by the Create, Get, and List Payment endpoints, and embedded in all payment webhook payloads.</div>
+  <div class="sec-sub">Returned by Create Payment, Get Payment, and List Payments endpoints, and embedded in all payment webhook payloads.</div>
 
   <table class="pt">
     <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+
     <tr><td><span class="pn">id</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Unique NBPay payment ID. Prefix: <code>pay_</code>.</td></tr>
     <tr><td><span class="pn">object</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Always <code>"payment"</code>.</td></tr>
     <tr><td><span class="pn">status</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Current status. See Payment Statuses.</td></tr>
-    <tr><td><span class="pn">amount</span></td><td><span class="pt-type">integer</span></td><td class="pt-desc">Original amount in kopecks. 1 RUB = 100 kopecks.</td></tr>
+    <tr><td><span class="pn">amount</span></td><td><span class="pt-type">number</span></td><td class="pt-desc">Payment amount in RUB (decimal, 2 places).</td></tr>
     <tr><td><span class="pn">currency</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Always <code>"RUB"</code>.</td></tr>
     <tr><td><span class="pn">order_id</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Your order identifier provided at creation.</td></tr>
-    <tr><td><span class="pn">description</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Payment description.</td></tr>
-    <tr><td><span class="pn">payment_url</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Customer redirect URL. Present only when status is <code>PENDING</code>.</td></tr>
-    <tr><td><span class="pn">payment_method</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc"><code>"CARD"</code> or <code>"SBP"</code>. Set after the customer selects a method.</td></tr>
-    <tr><td><span class="pn">card</span></td><td><span class="pt-type">object · null</span></td><td class="pt-desc">Card details for card payments: <code>brand</code> (MIR / VISA / MASTERCARD), <code>last4</code>.</td></tr>
-    <tr><td><span class="pn">refunded_amount</span></td><td><span class="pt-type">integer</span></td><td class="pt-desc">Total refunded in kopecks. <code>0</code> if no refunds issued.</td></tr>
-    <tr><td><span class="pn">failure_reason</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Machine-readable failure code. Present only when status is <code>FAILED</code>.</td></tr>
-    <tr><td><span class="pn">customer</span></td><td><span class="pt-type">object · null</span></td><td class="pt-desc">Customer object: <code>email</code>, <code>phone</code>.</td></tr>
-    <tr><td><span class="pn">metadata</span></td><td><span class="pt-type">object</span></td><td class="pt-desc">Your key-value pairs, returned as provided.</td></tr>
-    <tr><td><span class="pn">expires_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. Payment URL expiry. Present only while <code>PENDING</code>.</td></tr>
+    <tr><td><span class="pn">payment_method</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc"><code>"BANK_CARD"</code> or <code>"FPS"</code>. Set after the customer selects a method on the payment page. <code>null</code> while <code>PENDING</code>.</td></tr>
+
+    <tr>
+      <td><span class="pn">card</span></td>
+      <td><span class="pt-type">object · null</span></td>
+      <td class="pt-desc">
+        Card details — present only for <code>BANK_CARD</code> payments after authorization. Fields:<br>
+        <code>scheme</code> — <code>MIR</code> | <code>VISA</code> | <code>MASTERCARD</code><br>
+        <code>type</code> — <code>DEBIT</code> | <code>CREDIT</code><br>
+        <code>last4</code> — last 4 digits of the card PAN<br>
+        <code>issuer_bank</code> — name of the card-issuing bank
+      </td>
+    </tr>
+
+    <tr><td><span class="pn">authorization_status</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc"><code>AUTHORIZED</code> | <code>DECLINED</code> | <code>PENDING</code>. Reflects the acquirer's authorization result. <code>null</code> while customer has not yet interacted with the payment page.</td></tr>
+    <tr><td><span class="pn">authorized_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601 timestamp of successful authorization. <code>null</code> if not yet authorized or if declined.</td></tr>
+
+    <tr>
+      <td><span class="pn">fee</span></td>
+      <td><span class="pt-type">object · null</span></td>
+      <td class="pt-desc">NBPay commission charged on this payment. Contains:<br>
+        <code>amount</code> — number, in RUB<br>
+        <code>currency</code> — always <code>"RUB"</code><br>
+        <code>null</code> while the payment is still <code>PENDING</code>.</td>
+    </tr>
+
+    <tr><td><span class="pn">exchange_rate</span></td><td><span class="pt-type">number · null</span></td><td class="pt-desc">The RUB/FCY exchange rate applied by NBPay's settlement engine when crediting your virtual account. Represents how many RUB equal 1 unit of <code>merchant_currency</code>. <strong>Note:</strong> this value is set by NBPay and is not returned by the acquirer. <code>null</code> while <code>PENDING</code>.</td></tr>
+    <tr><td><span class="pn">merchant_currency</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">Your contracted settlement currency (e.g. <code>"USD"</code>, <code>"EUR"</code>, <code>"AED"</code>).</td></tr>
+
+    <tr><td><span class="pn">refunded_amount</span></td><td><span class="pt-type">number</span></td><td class="pt-desc">Total amount refunded to the customer across all refunds, in RUB. <code>0.00</code> if no refunds have been issued.</td></tr>
+    <tr><td><span class="pn">refundable_amount</span></td><td><span class="pt-type">number</span></td><td class="pt-desc">Amount still available for refund: <code>amount − refunded_amount</code>. <code>0.00</code> when fully refunded.</td></tr>
+    <tr><td><span class="pn">refund_ids</span></td><td><span class="pt-type">array</span></td><td class="pt-desc">Array of refund IDs (<code>ref_xxx</code>) associated with this payment. Empty array if no refunds have been made.</td></tr>
+    <tr><td><span class="pn">failure_reason</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Machine-readable reason code. Present only when <code>status</code> is <code>FAILED</code>. E.g. <code>BANK_DECLINED</code>, <code>3DS_FAILED</code>, <code>EXPIRED</code>.</td></tr>
+
+    <tr>
+      <td><span class="pn">products</span></td>
+      <td><span class="pt-type">array</span></td>
+      <td class="pt-desc">
+        Line items in this payment. Each item contains:<br>
+        <code>name</code> — product name<br>
+        <code>sku</code> — product article / SKU<br>
+        <code>unit_price</code> — price per unit, in RUB<br>
+        <code>quantity</code> — integer unit count<br>
+        <code>total_price</code> — <code>unit_price × quantity</code>, calculated by NBPay
+      </td>
+    </tr>
+
+    <tr><td><span class="pn">customer</span></td><td><span class="pt-type">object · null</span></td><td class="pt-desc">Customer details: <code>email</code>, <code>phone</code>.</td></tr>
+    <tr><td><span class="pn">metadata</span></td><td><span class="pt-type">object</span></td><td class="pt-desc">Your key-value pairs, returned exactly as provided.</td></tr>
+    <tr><td><span class="pn">notification_url</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">The webhook delivery URL for this specific payment.</td></tr>
+    <tr><td><span class="pn">success_url</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Customer redirect URL on successful payment.</td></tr>
+    <tr><td><span class="pn">fail_url</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Customer redirect URL on failed payment.</td></tr>
+    <tr><td><span class="pn">payment_url</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">Hosted payment page URL. Present only while <code>status</code> is <code>PENDING</code>.</td></tr>
+    <tr><td><span class="pn">expires_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. <code>payment_url</code> expiry time. Present only while <code>PENDING</code>.</td></tr>
     <tr><td><span class="pn">created_at</span></td><td><span class="pt-type">string</span></td><td class="pt-desc">ISO 8601. Payment creation timestamp.</td></tr>
-    <tr><td><span class="pn">completed_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. When payment reached a terminal status.</td></tr>
+    <tr><td><span class="pn">completed_at</span></td><td><span class="pt-type">string · null</span></td><td class="pt-desc">ISO 8601. Timestamp when the payment reached a terminal status.</td></tr>
   </table>
 </div>
 
-<!-- STATUSES ────────────────────────────────────────────── -->
+<!-- ──────────── STATUSES ──────────── -->
 <div class="sec" id="statuses">
   <div class="sec-h">Payment Statuses</div>
-  <div class="sec-sub">A payment progresses through the following statuses. Only <code>COMPLETED</code> means money moved successfully.</div>
+  <div class="sec-sub">A payment moves through the following statuses. Only <code>COMPLETED</code> means funds were successfully collected.</div>
 
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:24px">
-    <div style="display:grid;grid-template-columns:185px 95px 1fr;padding:9px 18px;
+    <div style="display:grid;grid-template-columns:225px 95px 1fr;padding:9px 18px;
       background:rgba(255,255,255,.018);border-bottom:1px solid var(--border2)">
       <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Status</span>
       <span style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Terminal?</span>
@@ -898,42 +1000,36 @@ http_response_code(<span class="sn">200</span>);</pre></div>
     <div class="st-row">
       <code style="color:#FCD34D">PENDING</code>
       <span style="font-size:12px;color:var(--text3)">No</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Payment created. Customer redirected to payment page or in the process of completing it.</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Payment created. Customer has been redirected to or is currently on the payment page.</span>
     </div>
     <div class="st-row">
       <code style="color:#6EE7B7">COMPLETED</code>
       <span style="font-size:12px;color:var(--text3)">Yes</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Authorized and funds reserved. Safe to fulfil the customer's order.</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Authorised and funds confirmed. Safe to fulfil the customer's order.</span>
     </div>
     <div class="st-row">
       <code style="color:#FCA5A5">FAILED</code>
       <span style="font-size:12px;color:var(--text3)">Yes</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Declined by bank, 3DS failure, or expired. No funds moved. Create a new payment to retry.</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Declined by bank, 3DS failure, or payment page expired. No funds were moved. Create a new payment to retry.</span>
     </div>
     <div class="st-row">
       <code style="color:#94A3B8">REFUNDED</code>
       <span style="font-size:12px;color:var(--text3)">Yes</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Fully refunded. No further refunds are possible.</span>
-    </div>
-    <div class="st-row">
-      <code style="color:#93C5FD">PARTIALLY_REFUNDED</code>
-      <span style="font-size:12px;color:var(--text3)">No</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">One or more partial refunds issued. Further partial refunds up to original amount are allowed.</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Fully refunded. <code>refundable_amount</code> is <code>0.00</code>. No further refunds are possible.</span>
     </div>
     <div class="st-row" style="border-bottom:none">
-      <code style="color:#FBB6CE">CHARGEBACK</code>
+      <code style="color:#93C5FD">PARTIALLY_REFUNDED</code>
       <span style="font-size:12px;color:var(--text3)">No</span>
-      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">Chargeback initiated by cardholder's bank. Funds frozen in dispute. Log in to the portal to submit evidence.</span>
+      <span style="font-size:12.5px;color:var(--text4);line-height:1.6">One or more partial refunds have been issued. Further refunds are allowed up to <code>refundable_amount</code>.</span>
     </div>
   </div>
 
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
     <div style="font-size:9px;font-family:var(--fm);font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px">Status transitions</div>
-    <div style="font-family:var(--fm);font-size:12px;color:var(--text2);line-height:2.2">
+    <div style="font-family:var(--fm);font-size:12px;color:var(--text2);line-height:2.3">
       <span style="color:#FCD34D">PENDING</span><span style="color:var(--text3)"> → </span><span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#94A3B8">REFUNDED</span><br>
       <span style="color:#FCD34D">PENDING</span><span style="color:var(--text3)"> → </span><span style="color:#FCA5A5">FAILED</span><br>
-      <span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#93C5FD">PARTIALLY_REFUNDED</span><span style="color:var(--text3)"> → </span><span style="color:#94A3B8">REFUNDED</span><br>
-      <span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#FBB6CE">CHARGEBACK</span>
+      <span style="color:#6EE7B7">COMPLETED</span><span style="color:var(--text3)"> → </span><span style="color:#93C5FD">PARTIALLY_REFUNDED</span><span style="color:var(--text3)"> → </span><span style="color:#94A3B8">REFUNDED</span>
     </div>
   </div>
 </div>
@@ -956,18 +1052,18 @@ function nav(el, id) {
 function cp(btn) {
   const pre = btn.closest('.cb').querySelector('pre');
   navigator.clipboard.writeText(pre.innerText).then(() => {
+    const orig = btn.textContent;
     btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = 'Copy', 1600);
+    setTimeout(() => btn.textContent = orig, 1500);
   });
 }
-// Active link on scroll
-const secs = [...document.querySelectorAll('.sec[id]')];
+// Highlight active nav item on scroll
+const sections = document.querySelectorAll('.sec');
 window.addEventListener('scroll', () => {
-  let cur = secs[0].id;
-  secs.forEach(s => { if (scrollY >= s.offsetTop - 60) cur = s.id; });
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
   document.querySelectorAll('.sb-link').forEach(l => {
-    const match = l.getAttribute('onclick')?.includes(`'${cur}'`);
-    l.classList.toggle('on', !!match);
+    l.classList.toggle('on', l.getAttribute('onclick')?.includes("'" + cur + "'"));
   });
 }, { passive: true });
 </script>
